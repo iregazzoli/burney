@@ -10,11 +10,32 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" type="text/css" href="main.css" />
   </head>
   <body>
-    <canvas id="canvas" width="1300" height="142"
-      >Your browser does not support the HTML5 canvas tag.
-    </canvas>
+    <div class="container">
+      <div class="row">
+        <div class="col-4"></div>
+        <div class="col-4"></div>
+        <div class="col-4"></div>
+      </div>
+      <div class="row">
+        <div class="col-4"></div>
+        <div class="col-4"></div>
+        <div class="col-4"></div>
+      </div>
+      <div class="row">
+        <div class="col-4 canvas-column">
+          <div class="canvas-wrapper">
+            <canvas id="canvas" width="1700" height="200"
+              >Your browser does not support the HTML5 canvas tag.</canvas
+            >
+          </div>
+        </div>
+        <div class="col-4"></div>
+        <div class="col-4"></div>
+      </div>
+    </div>
     <script src="pianokeyboard.js"></script>
     <script>
       DrawKeyboard(canvas);
