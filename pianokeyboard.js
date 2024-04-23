@@ -159,4 +159,24 @@ function DrawKeyboard(canvas) {
       }
     }
   });
+
+  function midiToNoteName(midiNumber) {
+    var noteNames = [
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "A",
+      "A#",
+      "B",
+    ];
+    var octave = Math.floor(midiNumber / 12) - 1;
+    var noteIndex = midiNumber % 12;
+    return noteNames[noteIndex] + octave;
+  }
 }
