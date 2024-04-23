@@ -1,10 +1,11 @@
-function DrawKeyboard(canvas) {
+function DrawKeyboard(canvas, coloredKeys = {}) {
   // general characteristics of a piano
 
   let whiteKeys = [];
   let blackKeys = [];
   let keys = [];
 
+  let TOTAL_KEYS = 88;
   let NUM_WHITE_KEYS = 52;
 
   let ctx = canvas.getContext("2d");
@@ -32,10 +33,15 @@ function DrawKeyboard(canvas) {
   }
 
   // draws a back key, based on whiteKeyIndex, where 0 <= WhiteKeyIndex < 52
-  function drawBlackKey(whiteKeyIndex) {
-    C1 = "rgb(0,0,0)"; // black
-    C2 = "rgb(50,50,50)"; // ??
-
+  function drawBlackKey(whiteKeyIndex, coloredKey = false) {
+    let C1, C2;
+    if (coloredKey) {
+      C1 = "rgb(0,0,0)"; // black
+      C2 = "rgb(255,0,0)"; // red
+    } else {
+      C1 = "rgb(0,0,0)"; // black
+      C2 = "rgb(50,50,50)"; // ??
+    }
     DrawRectWithBorder(
       X_BORDER + (whiteKeyIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2,
       Y_BORDER,
@@ -48,9 +54,15 @@ function DrawKeyboard(canvas) {
     addKeyToArray(blackKeys, true, whiteKeyIndex);
   }
 
-  function DrawWhiteKey(WhiteKeyIndex) {
-    C1 = "rgb(0,0,0)"; // lback
-    C2 = "rgb(255,255,255)"; // white
+  function drawWhiteKey(WhiteKeyIndex, coloredKey = false) {
+    let C1, C2;
+    if (coloredKey) {
+      C1 = "rgb(0,0,0)"; // black
+      C2 = "rgb(255,0,0)"; // red
+    } else {
+      C1 = "rgb(0,0,0)"; // black
+      C2 = "rgb(255,255,255)"; // white
+    }
 
     DrawRectWithBorder(
       X_BORDER + WhiteKeyIndex * WHITE_KEY_WIDTH,
@@ -83,7 +95,7 @@ function DrawKeyboard(canvas) {
 
   // just draw in all the white keys to begin with...
   for (i = 0; i < NUM_WHITE_KEYS; i++) {
-    DrawWhiteKey(i);
+    drawWhiteKey(i);
   }
   // draw first black key that is not from an octave
   drawBlackKey(0);
@@ -99,6 +111,64 @@ function DrawKeyboard(canvas) {
       drawBlackKey(curWhiteNoteIndex);
       if (i == 1 || i == 4) curWhiteNoteIndex += 2;
       else curWhiteNoteIndex += 1;
+    }
+  }
+
+  function keyType(isBlack, White_Index) {
+    this.isBlack = isBlack;
+    this.White_Index = White_Index;
+  }
+
+  function AbsoluteToKeyInfo(AbsoluteNoteNum) {
+    var KeyLookupTable = new Array(TOTAL_KEYS);
+
+    KeyLookupTable[0] = new keyType(false, 0); // a
+    KeyLookupTable[1] = new keyType(true, 0); // a#
+    KeyLookupTable[2] = new keyType(false, 1); // b
+    base = 3;
+
+    NumOctaves = 8;
+    for (counter = 0; counter < NumOctaves; counter++) {
+      octave_offset = 7 * counter;
+
+      KeyLookupTable[base + 0] = new keyType(false, octave_offset + 2); // c
+      KeyLookupTable[base + 1] = new keyType(true, octave_offset + 2); // c#
+      KeyLookupTable[base + 2] = new keyType(false, octave_offset + 3); // d
+      KeyLookupTable[base + 3] = new keyType(true, octave_offset + 3); // d#
+      KeyLookupTable[base + 4] = new keyType(false, octave_offset + 4); // e
+      KeyLookupTable[base + 5] = new keyType(false, octave_offset + 5); // f
+      KeyLookupTable[base + 6] = new keyType(true, octave_offset + 5); // f#
+      KeyLookupTable[base + 7] = new keyType(false, octave_offset + 6); // g
+      KeyLookupTable[base + 8] = new keyType(true, octave_offset + 6); // g#
+      KeyLookupTable[base + 9] = new keyType(false, octave_offset + 7); // a
+      KeyLookupTable[base + 10] = new keyType(true, octave_offset + 7); // a#
+      KeyLookupTable[base + 11] = new keyType(false, octave_offset + 8); // b
+
+      base += 12;
+    }
+
+    return KeyLookupTable[AbsoluteNoteNum];
+  }
+
+  //TODO: give cool name to that 21
+  for (let key in coloredKeys) {
+    let keyInfo = AbsoluteToKeyInfo(parseInt(key) - 21);
+    if (keyInfo.isBlack) {
+      drawBlackKey(keyInfo.White_Index, true);
+    } else {
+      drawWhiteKey(keyInfo.White_Index, true);
+      drawBlackKey(keyInfo.White_Index, false);
+    }
+
+    let associatedKeyNums = coloredKeys[key];
+    for (let associatedKeyNum of associatedKeyNums) {
+      let associatedKeyInfo = AbsoluteToKeyInfo(associatedKeyNum - 21);
+      if (associatedKeyInfo.isBlack) {
+        drawBlackKey(associatedKeyInfo.White_Index, true);
+      } else {
+        drawWhiteKey(associatedKeyInfo.White_Index, true);
+        drawBlackKey(associatedKeyInfo.White_Index, false);
+      }
     }
   }
 
