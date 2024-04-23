@@ -1,21 +1,4 @@
-/*
-	pianokeyboard.js
-	Benjamin Pritchard / Kundalini Software
-	15-March-2019
-
-	Simple Javascript routine for drawing a piano keyboard onto a canvas element
-	
-	Usage:
-
-		var canvas = document.getElementById("canvas");
-		RedKeys = [39, 43, 46];
-		DrawKeyboard(canvas, RedKeys);	
-
-*/
-
-// canvas 		- HTML5 canvas element
-// RedKeyArray  - array of keys to color red (0 = low a, 87 = high c, proceeding chromatically)
-function DrawKeyboard(canvas, RedKeyArray = []) {
+function DrawKeyboard(canvas) {
   // general characteristics of a piano
 
   var TOTAL_KEYS = 88;
@@ -47,60 +30,32 @@ function DrawKeyboard(canvas, RedKeyArray = []) {
   }
 
   // draws a back key, based on whiteKeyIndex, where 0 <= WhiteKeyIndex < 52
-  function drawBlackKey(whiteKeyIndex, shouldBeRed = false) {
-    if (!shouldBeRed) {
-      C1 = "rgb(0,0,0)"; // black
-      C2 = "rgb(50,50,50)"; // ??
+  function drawBlackKey(whiteKeyIndex) {
+    C1 = "rgb(0,0,0)"; // black
+    C2 = "rgb(50,50,50)"; // ??
 
-      DrawRectWithBorder(
-        X_BORDER + (whiteKeyIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2,
-        Y_BORDER,
-        BLACK_KEY_WIDTH,
-        BLACK_KEY_HEIGHT,
-        C1,
-        C2
-      );
-    } else {
-      C1 = "rgb(0,0,0)"; // black
-      C2 = "rgb(255,0,0)"; // red
-
-      DrawRectWithBorder(
-        X_BORDER + (whiteKeyIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2,
-        Y_BORDER,
-        BLACK_KEY_WIDTH,
-        BLACK_KEY_HEIGHT,
-        C1,
-        C2
-      );
-    }
+    DrawRectWithBorder(
+      X_BORDER + (whiteKeyIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2,
+      Y_BORDER,
+      BLACK_KEY_WIDTH,
+      BLACK_KEY_HEIGHT,
+      C1,
+      C2
+    );
   }
 
-  function DrawWhiteKey(WhiteKeyIndex, shouldBeRed = false) {
-    if (!shouldBeRed) {
-      C1 = "rgb(0,0,0)"; // lback
-      C2 = "rgb(255,255,255)"; // white
+  function DrawWhiteKey(WhiteKeyIndex) {
+    C1 = "rgb(0,0,0)"; // lback
+    C2 = "rgb(255,255,255)"; // white
 
-      DrawRectWithBorder(
-        X_BORDER + WhiteKeyIndex * WHITE_KEY_WIDTH,
-        Y_BORDER,
-        WHITE_KEY_WIDTH,
-        height,
-        C1,
-        C2
-      );
-    } else {
-      C1 = "rgb(0,0,0)"; // black
-      C2 = "rgb(255,0,0)"; // red
-
-      DrawRectWithBorder(
-        X_BORDER + WhiteKeyIndex * WHITE_KEY_WIDTH,
-        Y_BORDER,
-        WHITE_KEY_WIDTH,
-        height,
-        C1,
-        C2
-      );
-    }
+    DrawRectWithBorder(
+      X_BORDER + WhiteKeyIndex * WHITE_KEY_WIDTH,
+      Y_BORDER,
+      WHITE_KEY_WIDTH,
+      height,
+      C1,
+      C2
+    );
   }
 
   function keyType(isBlack, White_Index) {
@@ -143,20 +98,8 @@ function DrawKeyboard(canvas, RedKeyArray = []) {
   for (i = 0; i < NUM_WHITE_KEYS; i++) {
     DrawWhiteKey(i, false);
   }
-
-  // now draw specially white keys that need to be red...
-  // just loop through all the RedKeyArray
-  for (index = 0; index <= TOTAL_KEYS; index++) {
-    // and if we find any white keys that are supposed to be red, then draw them in red...
-    if (RedKeyArray.includes(index)) {
-      KeyLookup = AbsoluteToKeyInfo(index);
-      if (!KeyLookup.isBlack) DrawWhiteKey(KeyLookup.White_Index, true);
-    }
-  }
-
-  // draw in lowest a# manually (making sure to draw it red if it should be)
-  LowestShouldBeRed = RedKeyArray.includes(1);
-  drawBlackKey(0, LowestShouldBeRed);
+  // draw first black key that is not from an octave
+  drawBlackKey(0);
 
   // now draw all the rest of the black keys...
   // loop through all 7 octaves
@@ -169,16 +112,6 @@ function DrawKeyboard(canvas, RedKeyArray = []) {
       drawBlackKey(curWhiteNoteIndex, false);
       if (i == 1 || i == 4) curWhiteNoteIndex += 2;
       else curWhiteNoteIndex += 1;
-    }
-  }
-
-  // now draw specially black keys that need to be red...
-  // just loop through all the RedKeyArray
-  for (index = 0; index <= 88; index++) {
-    // and if we find any black keys that are supposed to be red, then draw them in red...
-    if (RedKeyArray.includes(index)) {
-      KeyLookup = AbsoluteToKeyInfo(index);
-      if (KeyLookup.isBlack) drawBlackKey(KeyLookup.White_Index, true);
     }
   }
 }
