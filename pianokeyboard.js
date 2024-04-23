@@ -102,6 +102,15 @@ function DrawKeyboard(canvas) {
     }
   }
 
+  function drawText(x, y, text, color = "black") {
+    var ctx = document.getElementById("canvas").getContext("2d");
+    ctx.font = "14px Arial";
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, x, y);
+  }
+
   function assignMidiNumbers() {
     var midiNumber = 21;
     var blackKeyIndex = 1;
@@ -110,17 +119,38 @@ function DrawKeyboard(canvas) {
     // Assign MIDI numbers to the first three keys
     whiteKeys[0].index = midiNumber++;
     keys.push(whiteKeys[0]);
+    drawText(
+      whiteKeys[0].x + WHITE_KEY_WIDTH / 2,
+      whiteKeys[0].y + WHITE_KEY_HEIGHT / 1.2,
+      midiToNoteName(whiteKeys[0].index)
+    );
 
     blackKeys[0].index = midiNumber++;
     keys.push(blackKeys[0]);
+    drawText(
+      blackKeys[0].x + BLACK_KEY_WIDTH / 2,
+      blackKeys[0].y + BLACK_KEY_HEIGHT / 1.2,
+      midiToNoteName(blackKeys[0].index),
+      "white"
+    );
 
     whiteKeys[1].index = midiNumber++;
     keys.push(whiteKeys[1]);
+    drawText(
+      whiteKeys[1].x + WHITE_KEY_WIDTH / 2,
+      whiteKeys[1].y + WHITE_KEY_HEIGHT / 1.2,
+      midiToNoteName(whiteKeys[1].index)
+    );
 
     // Assign MIDI numbers to the rest of the keys
     for (var i = 2; i < 52; i++) {
       whiteKeys[i].index = midiNumber++;
       keys.push(whiteKeys[i]);
+      drawText(
+        whiteKeys[i].x + WHITE_KEY_WIDTH / 2,
+        whiteKeys[i].y + WHITE_KEY_HEIGHT / 1.2,
+        midiToNoteName(whiteKeys[i].index)
+      );
 
       // Add a black key according to the pattern
       if (
@@ -129,6 +159,12 @@ function DrawKeyboard(canvas) {
       ) {
         blackKeys[blackKeyIndex].index = midiNumber++;
         keys.push(blackKeys[blackKeyIndex]);
+        drawText(
+          blackKeys[blackKeyIndex].x + BLACK_KEY_WIDTH / 2,
+          blackKeys[blackKeyIndex].y + BLACK_KEY_HEIGHT / 1.2,
+          midiToNoteName(blackKeys[blackKeyIndex].index),
+          "white"
+        );
         blackKeyIndex++;
       }
     }
