@@ -1,12 +1,14 @@
 function DrawKeyboard(canvas, coloredKeys = {}) {
   // general characteristics of a piano
 
+  let firstKeyIndex = null;
   let whiteKeys = [];
   let blackKeys = [];
   let keys = [];
 
   let TOTAL_KEYS = 88;
   let NUM_WHITE_KEYS = 52;
+  const MIDI_DISPLACEMENT = 21;
 
   let ctx = canvas.getContext("2d");
 
@@ -93,27 +95,6 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
     });
   }
 
-  // just draw in all the white keys to begin with...
-  for (i = 0; i < NUM_WHITE_KEYS; i++) {
-    drawWhiteKey(i);
-  }
-  // draw first black key that is not from an octave
-  drawBlackKey(0);
-
-  // now draw all the rest of the black keys...
-  // loop through all 7 octaves
-  numOctaves = 7;
-  curWhiteNoteIndex = 2;
-
-  for (octave = 0; octave < numOctaves; octave++) {
-    // and draw 5 black notes per octave...
-    for (i = 0; i < 5; i++) {
-      drawBlackKey(curWhiteNoteIndex);
-      if (i == 1 || i == 4) curWhiteNoteIndex += 2;
-      else curWhiteNoteIndex += 1;
-    }
-  }
-
   function keyType(isBlack, White_Index) {
     this.isBlack = isBlack;
     this.White_Index = White_Index;
@@ -150,26 +131,47 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
     return KeyLookupTable[AbsoluteNoteNum];
   }
 
-  //TODO: give cool name to that 21
-  for (let key in coloredKeys) {
-    let keyInfo = AbsoluteToKeyInfo(parseInt(key) - 21);
-    if (keyInfo.isBlack) {
-      drawBlackKey(keyInfo.White_Index, true);
-    } else {
-      drawWhiteKey(keyInfo.White_Index, true);
-      drawBlackKey(keyInfo.White_Index, false);
+  //TODO think logic for octaves
+  function reDrawNeighbourBlackKeys(whiteIndex) {
+    if (whiteIndex === 0) {
+      drawBlackKey(whiteIndex, false);
+    } else if (whiteIndex > 0 && whiteIndex < 51) {
+      //OCTAVE LOGIC
+      drawBlackKey(whiteIndex, false);
+      drawBlackKey(whiteIndex - 1, false);
+    } else if (whiteIndex === 51) {
     }
+  }
 
-    let associatedKeyNums = coloredKeys[key];
-    for (let associatedKeyNum of associatedKeyNums) {
-      let associatedKeyInfo = AbsoluteToKeyInfo(associatedKeyNum - 21);
-      if (associatedKeyInfo.isBlack) {
-        drawBlackKey(associatedKeyInfo.White_Index, true);
+  function colorKeys(pressedKey) {
+    for (let key in coloredKeys) {
+      if (String(pressedKey) !== key) {
+        continue;
+      }
+
+      let keyInfo = AbsoluteToKeyInfo(parseInt(key) - MIDI_DISPLACEMENT);
+      if (keyInfo.isBlack) {
+        drawBlackKey(keyInfo.White_Index, true);
       } else {
-        drawWhiteKey(associatedKeyInfo.White_Index, true);
-        drawBlackKey(associatedKeyInfo.White_Index, false);
+        drawWhiteKey(keyInfo.White_Index, true);
+        reDrawNeighbourBlackKeys(keyInfo.White_Index);
+      }
+
+      let associatedKeyNums = coloredKeys[key];
+      for (let associatedKeyNum of associatedKeyNums) {
+        let associatedKeyInfo = AbsoluteToKeyInfo(
+          associatedKeyNum - MIDI_DISPLACEMENT
+        );
+        if (associatedKeyInfo.isBlack) {
+          drawBlackKey(associatedKeyInfo.White_Index, true);
+        } else {
+          drawWhiteKey(associatedKeyInfo.White_Index, true);
+          reDrawNeighbourBlackKeys(associatedKeyInfo.White_Index);
+        }
       }
     }
+    //TODO FIX THE REDRAWING OF NAMES
+    assignMidiNumbers();
   }
 
   function drawText(x, y, text, color = "black") {
@@ -240,8 +242,6 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
     }
   }
 
-  assignMidiNumbers();
-
   //Sort it just bc white key are bigger so their "hitbox" can overlap black keys
   keys.sort(function (a, b) {
     return b.isBlack - a.isBlack;
@@ -260,9 +260,30 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
         y >= key.y &&
         y <= key.y + key.height
       ) {
-        console.log("Key clicked:", key.index, "Is black:", key.isBlack);
+        if (firstKeyIndex === null) {
+          firstKeyIndex = key.index;
+          if (!coloredKeys.hasOwnProperty(firstKeyIndex)) {
+            coloredKeys[firstKeyIndex] = [];
+          }
+        } else {
+          coloredKeys[firstKeyIndex].push(key.index);
+        }
+        colorKeys(firstKeyIndex);
         break;
       }
+    }
+  });
+
+  document.addEventListener("click", function (event) {
+    let rect = canvas.getBoundingClientRect();
+    if (
+      event.clientX < rect.left ||
+      event.clientX > rect.right ||
+      event.clientY < rect.top ||
+      event.clientY > rect.bottom
+    ) {
+      firstKeyIndex = null;
+      drawDefaultKeyboard();
     }
   });
 
@@ -285,4 +306,31 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
     var noteIndex = midiNumber % 12;
     return noteNames[noteIndex] + octave;
   }
+
+  function drawDefaultKeyboard() {
+    // just draw in all the white keys to begin with...
+    for (i = 0; i < NUM_WHITE_KEYS; i++) {
+      drawWhiteKey(i);
+    }
+    // draw first black key that is not from an octave
+    drawBlackKey(0);
+
+    // now draw all the rest of the black keys...
+    // loop through all 7 octaves
+    numOctaves = 7;
+    curWhiteNoteIndex = 2;
+
+    for (octave = 0; octave < numOctaves; octave++) {
+      // and draw 5 black notes per octave...
+      for (i = 0; i < 5; i++) {
+        drawBlackKey(curWhiteNoteIndex);
+        if (i == 1 || i == 4) curWhiteNoteIndex += 2;
+        else curWhiteNoteIndex += 1;
+      }
+    }
+
+    assignMidiNumbers();
+  }
+
+  drawDefaultKeyboard();
 }

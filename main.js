@@ -1,2 +1,2 @@
-const associatedKeys = { 21: [72, 61] };
+const associatedKeys = {};
 DrawKeyboard(canvas, associatedKeys);
