@@ -129,19 +129,42 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
     return KeyLookupTable[AbsoluteNoteNum];
   }
 
-  //TODO think logic for octaves
   function reDrawNeighbourBlackKeys(whiteIndex) {
-    if (whiteIndex === 0) {
-      drawBlackKey(whiteIndex, false);
-    } else if (whiteIndex > 0 && whiteIndex < 51) {
-      //OCTAVE LOGIC
-      drawBlackKey(whiteIndex, false);
-      drawBlackKey(whiteIndex - 1, false);
-    } else if (whiteIndex === 51) {
+    switch (true) {
+      case whiteIndex === 0:
+        break;
+      case whiteIndex === 1:
+        drawBlackKey(whiteIndex - 1, false);
+        break;
+      case whiteIndex > 0 && whiteIndex < 51:
+        let positionInOctave = (whiteIndex - 2) % 7;
+
+        switch (positionInOctave) {
+          case 0: // Do
+            drawBlackKey(whiteIndex, false);
+            break;
+          case 1: // Re
+          case 4: // Sol
+          case 5: // La
+            drawBlackKey(whiteIndex, false);
+            drawBlackKey(whiteIndex - 1, false);
+            break;
+          case 2: // Mi
+          case 6: // Si
+            drawBlackKey(whiteIndex - 1, false);
+            break;
+          case 3: // Fa
+            drawBlackKey(whiteIndex, false);
+            break;
+        }
+        break;
+      default:
+        break;
     }
   }
 
   function colorKeys(pressedKey) {
+    console.log(coloredKeys);
     for (let key in coloredKeys) {
       if (String(pressedKey) !== key) {
         continue;
