@@ -165,6 +165,7 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
 
   function colorKeys(pressedKey) {
     console.log(coloredKeys);
+    let test = [];
     for (let key in coloredKeys) {
       if (String(pressedKey) !== key) {
         continue;
@@ -172,7 +173,7 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
 
       let keyInfo = AbsoluteToKeyInfo(parseInt(key) - MIDI_DISPLACEMENT);
       if (keyInfo.isBlack) {
-        drawBlackKey(keyInfo.White_Index, true, true);
+        test.push({ info: keyInfo, keyBeingMap: true });
       } else {
         drawWhiteKey(keyInfo.White_Index, true, true);
         reDrawNeighbourBlackKeys(keyInfo.White_Index);
@@ -184,12 +185,15 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
           associatedKeyNum - MIDI_DISPLACEMENT
         );
         if (associatedKeyInfo.isBlack) {
-          drawBlackKey(associatedKeyInfo.White_Index, true);
+          test.push({ info: associatedKeyInfo, keyBeingMap: false });
         } else {
           drawWhiteKey(associatedKeyInfo.White_Index, true);
           reDrawNeighbourBlackKeys(associatedKeyInfo.White_Index);
         }
       }
+    }
+    for (let key of test) {
+      drawBlackKey(key.info.White_Index, true, key.keyBeingMap);
     }
     //TODO FIX THE REDRAWING OF NAMES
     assignMidiNumbers();
