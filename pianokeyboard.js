@@ -284,10 +284,10 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
         if (firstKeyIndex === null) {
           firstKeyIndex = key.index;
           if (!coloredKeys.hasOwnProperty(firstKeyIndex)) {
-            coloredKeys[firstKeyIndex] = [];
+            coloredKeys[firstKeyIndex] = new Set();
           }
         } else {
-          coloredKeys[firstKeyIndex].push(key.index);
+          coloredKeys[firstKeyIndex].add(key.index);
         }
         colorKeys(firstKeyIndex);
         break;
