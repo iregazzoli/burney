@@ -35,14 +35,13 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
   }
 
   // draws a back key, based on whiteKeyIndex, where 0 <= WhiteKeyIndex < 52
-  function drawBlackKey(whiteKeyIndex, coloredKey = false) {
+  function drawBlackKey(whiteKeyIndex, coloredKey = false, mappedKey = false) {
     let C1, C2;
+    C1 = "#000000"; // black
+    C2 = "#323232"; // grey
     if (coloredKey) {
-      C1 = "rgb(0,0,0)"; // black
-      C2 = "rgb(255,0,0)"; // red
-    } else {
-      C1 = "rgb(0,0,0)"; // black
-      C2 = "rgb(50,50,50)"; // ??
+      if (mappedKey) C2 = "#4663ac";
+      else C2 = "#c1d8f0";
     }
     DrawRectWithBorder(
       X_BORDER + (whiteKeyIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2,
@@ -56,14 +55,13 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
     addKeyToArray(blackKeys, true, whiteKeyIndex);
   }
 
-  function drawWhiteKey(WhiteKeyIndex, coloredKey = false) {
+  function drawWhiteKey(WhiteKeyIndex, coloredKey = false, mappedKey = false) {
     let C1, C2;
+    C1 = "#000000"; // black
+    C2 = "#ffffff"; // white
     if (coloredKey) {
-      C1 = "rgb(0,0,0)"; // black
-      C2 = "rgb(255,0,0)"; // red
-    } else {
-      C1 = "rgb(0,0,0)"; // black
-      C2 = "rgb(255,255,255)"; // white
+      if (mappedKey) C2 = "#4663ac";
+      else C2 = "#c1d8f0";
     }
 
     DrawRectWithBorder(
@@ -151,9 +149,9 @@ function DrawKeyboard(canvas, coloredKeys = {}) {
 
       let keyInfo = AbsoluteToKeyInfo(parseInt(key) - MIDI_DISPLACEMENT);
       if (keyInfo.isBlack) {
-        drawBlackKey(keyInfo.White_Index, true);
+        drawBlackKey(keyInfo.White_Index, true, true);
       } else {
-        drawWhiteKey(keyInfo.White_Index, true);
+        drawWhiteKey(keyInfo.White_Index, true, true);
         reDrawNeighbourBlackKeys(keyInfo.White_Index);
       }
 
