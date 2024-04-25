@@ -82,13 +82,15 @@ class Keyboard {
     whiteKeyIndex,
     coloredKey = false,
     mappedKey = false,
-    defaultDraw = false
+    defaultDraw = false,
+    silentKey = false
   ) {
     let C1, C2;
     C1 = "#000000"; // black
     C2 = "#323232"; // grey
     if (coloredKey) {
       if (mappedKey) C2 = "#4663ac";
+      else if (silentKey) C2 = "#ffff2b";
       else C2 = "#c1d8f0";
     }
     this.DrawRectWithBorder(
@@ -108,13 +110,15 @@ class Keyboard {
     WhiteKeyIndex,
     coloredKey = false,
     mappedKey = false,
-    defaultDraw = false
+    defaultDraw = false,
+    silentKey = false
   ) {
     let C1, C2;
     C1 = "#000000"; // black
     C2 = "#ffffff"; // white
     if (coloredKey) {
       if (mappedKey) C2 = "#4663ac";
+      else if (silentKey) C2 = "#ffff2b";
       else C2 = "#c1d8f0";
     }
 
@@ -215,6 +219,7 @@ class Keyboard {
 
   colorKeys(pressedKey) {
     let test = [];
+    let silentKey = false;
     for (let key in this.coloredKeys) {
       if (String(pressedKey) !== key) {
         continue;
@@ -223,6 +228,7 @@ class Keyboard {
       let keyInfo = this.AbsoluteToKeyInfo(
         parseInt(key) - this.MIDI_DISPLACEMENT
       );
+
       if (keyInfo.isBlack) {
         test.push({ info: keyInfo, keyBeingMap: true });
       } else {
@@ -232,19 +238,35 @@ class Keyboard {
 
       let associatedKeyNums = this.coloredKeys[key];
       for (let associatedKeyNum of associatedKeyNums) {
+        if (/^S\d+$/.test(associatedKeyNum)) {
+          silentKey = true;
+          associatedKeyNum = associatedKeyNum.substring(1);
+        }
         let associatedKeyInfo = this.AbsoluteToKeyInfo(
           associatedKeyNum - this.MIDI_DISPLACEMENT
         );
         if (associatedKeyInfo.isBlack) {
           test.push({ info: associatedKeyInfo, keyBeingMap: false });
         } else {
-          this.drawWhiteKey(associatedKeyInfo.White_Index, true);
+          this.drawWhiteKey(
+            associatedKeyInfo.White_Index,
+            true,
+            false,
+            false,
+            silentKey
+          );
           this.reDrawNeighbourBlackKeys(associatedKeyInfo.White_Index);
         }
       }
     }
     for (let key of test) {
-      this.drawBlackKey(key.info.White_Index, true, key.keyBeingMap);
+      this.drawBlackKey(
+        key.info.White_Index,
+        true,
+        key.keyBeingMap,
+        false,
+        silentKey
+      );
     }
     //TODO FIX THE REDRAWING OF NAMES
     this.assignMidiNumbers();
@@ -323,10 +345,11 @@ class Keyboard {
       return b.isBlack - a.isBlack;
     });
   }
-
+  //TODO prob we want to remove the key from coloredKeys if you click 4 times (after the silent one)
   setupEventListeners() {
     this.canvas.addEventListener("click", (event) => {
       event.stopPropagation();
+
       let rect = this.canvas.getBoundingClientRect();
       let x = event.clientX - rect.left;
       let y = event.clientY - rect.top;
@@ -345,24 +368,55 @@ class Keyboard {
               this.coloredKeys[this.firstKeyIndex] = new Set();
             }
           } else {
-            this.coloredKeys[this.firstKeyIndex].add(key.index);
+            let sKeyIndex = "S" + key.index;
+            let keySet = this.coloredKeys[this.firstKeyIndex];
+
+            if (keySet.has(key.index) || keySet.has(sKeyIndex)) {
+              if (key.index === this.firstKeyIndex && keySet.has(key.index)) {
+                keySet.delete(key.index);
+                keySet.add(sKeyIndex);
+              } else if (
+                key.index === this.firstKeyIndex &&
+                keySet.has(sKeyIndex)
+              ) {
+                keySet.delete(sKeyIndex);
+                let keyInfo = this.AbsoluteToKeyInfo(
+                  parseInt(key.index) - this.MIDI_DISPLACEMENT
+                );
+                keyInfo.isBlack
+                  ? this.drawBlackKey(keyInfo.White_Index)
+                  : this.drawWhiteKey(keyInfo.White_Index);
+                this.reDrawNeighbourBlackKeys(keyInfo.White_Index);
+              } else {
+                keySet.delete(key.index);
+                let keyInfo = this.AbsoluteToKeyInfo(
+                  parseInt(key.index) - this.MIDI_DISPLACEMENT
+                );
+                keyInfo.isBlack
+                  ? this.drawBlackKey(keyInfo.White_Index)
+                  : this.drawWhiteKey(keyInfo.White_Index);
+                this.reDrawNeighbourBlackKeys(keyInfo.White_Index);
+              }
+            } else {
+              keySet.add(key.index);
+            }
           }
           this.colorKeys(this.firstKeyIndex);
           break;
         }
-      }
-    });
 
-    document.addEventListener("click", (event) => {
-      let rect = this.canvas.getBoundingClientRect();
-      if (
-        event.clientX < rect.left ||
-        event.clientX > rect.right ||
-        event.clientY < rect.top ||
-        event.clientY > rect.bottom
-      ) {
-        this.firstKeyIndex = null;
-        this.drawDefaultKeyboard();
+        document.addEventListener("click", (event) => {
+          let rect = this.canvas.getBoundingClientRect();
+          if (
+            event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom
+          ) {
+            this.firstKeyIndex = null;
+            this.drawDefaultKeyboard();
+          }
+        });
       }
     });
   }
