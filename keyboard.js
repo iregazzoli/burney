@@ -325,7 +325,6 @@ class Keyboard {
   }
 
   setupEventListeners() {
-    console.log("Setting up event listeners");
     this.canvas.addEventListener("click", (event) => {
       event.stopPropagation();
       let rect = this.canvas.getBoundingClientRect();
@@ -340,7 +339,6 @@ class Keyboard {
           y >= key.y &&
           y <= key.y + key.height
         ) {
-          console.log(key.index);
           if (this.firstKeyIndex === null) {
             this.firstKeyIndex = key.index;
             if (!this.coloredKeys.hasOwnProperty(this.firstKeyIndex)) {
