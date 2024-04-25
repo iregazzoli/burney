@@ -7,6 +7,7 @@ class KeyType {
 
 class Keyboard {
   constructor(canvas, coloredKeysParam = {}) {
+    this.canvas = canvas;
     this.coloredKeys = coloredKeysParam;
     this.firstKeyIndex = null;
     this.whiteKeys = [];
@@ -32,16 +33,17 @@ class Keyboard {
     this.BLACK_KEY_HEIGHT = this.height * 0.66;
 
     this.drawDefaultKeyboard();
+    this.setupEventListeners();
   }
 
   //Public
   drawDefaultKeyboard() {
     // just draw in all the white keys to begin with...
     for (let i = 0; i < this.NUM_WHITE_KEYS; i++) {
-      this.drawWhiteKey(i);
+      this.drawWhiteKey(i, false, false, true);
     }
     // draw first black key that is not from an octave
-    this.drawBlackKey(0);
+    this.drawBlackKey(0, false, false, true);
 
     // now draw all the rest of the black keys...
     // loop through all 7 octaves
@@ -51,15 +53,13 @@ class Keyboard {
     for (let octave = 0; octave < numOctaves; octave++) {
       // and draw 5 black notes per octave...
       for (let i = 0; i < 5; i++) {
-        this.drawBlackKey(curWhiteNoteIndex);
+        this.drawBlackKey(curWhiteNoteIndex, false, false, true);
         if (i == 1 || i == 4) curWhiteNoteIndex += 2;
         else curWhiteNoteIndex += 1;
       }
     }
-
-    this.assignMidiNumbers();
     this.sortKeys();
-    this.setupEventListeners();
+    this.assignMidiNumbers();
   }
 
   resetColoredKeys() {
@@ -78,7 +78,12 @@ class Keyboard {
     this.ctx.fillRect(X + 1, Y + 1, Width - 2, Height - 2);
   }
 
-  drawBlackKey(whiteKeyIndex, coloredKey = false, mappedKey = false) {
+  drawBlackKey(
+    whiteKeyIndex,
+    coloredKey = false,
+    mappedKey = false,
+    defaultDraw = false
+  ) {
     let C1, C2;
     C1 = "#000000"; // black
     C2 = "#323232"; // grey
@@ -96,11 +101,15 @@ class Keyboard {
       C1,
       C2
     );
-
-    this.addKeyToArray(this.blackKeys, true, whiteKeyIndex);
+    if (defaultDraw) this.addKeyToArray(this.blackKeys, true, whiteKeyIndex);
   }
 
-  drawWhiteKey(WhiteKeyIndex, coloredKey = false, mappedKey = false) {
+  drawWhiteKey(
+    WhiteKeyIndex,
+    coloredKey = false,
+    mappedKey = false,
+    defaultDraw = false
+  ) {
     let C1, C2;
     C1 = "#000000"; // black
     C2 = "#ffffff"; // white
@@ -117,8 +126,7 @@ class Keyboard {
       C1,
       C2
     );
-
-    this.addKeyToArray(this.whiteKeys, false, WhiteKeyIndex);
+    if (defaultDraw) this.addKeyToArray(this.whiteKeys, false, WhiteKeyIndex);
   }
 
   addKeyToArray(notesArray, isBlack, WhiteKeyIndex) {
@@ -206,7 +214,6 @@ class Keyboard {
   }
 
   colorKeys(pressedKey) {
-    console.log(this.coloredKeys);
     let test = [];
     for (let key in this.coloredKeys) {
       if (String(pressedKey) !== key) {
@@ -318,8 +325,10 @@ class Keyboard {
   }
 
   setupEventListeners() {
-    canvas.addEventListener("click", (event) => {
-      let rect = canvas.getBoundingClientRect();
+    console.log("Setting up event listeners");
+    this.canvas.addEventListener("click", (event) => {
+      event.stopPropagation();
+      let rect = this.canvas.getBoundingClientRect();
       let x = event.clientX - rect.left;
       let y = event.clientY - rect.top;
 
@@ -331,6 +340,7 @@ class Keyboard {
           y >= key.y &&
           y <= key.y + key.height
         ) {
+          console.log(key.index);
           if (this.firstKeyIndex === null) {
             this.firstKeyIndex = key.index;
             if (!this.coloredKeys.hasOwnProperty(this.firstKeyIndex)) {
@@ -346,7 +356,7 @@ class Keyboard {
     });
 
     document.addEventListener("click", (event) => {
-      let rect = canvas.getBoundingClientRect();
+      let rect = this.canvas.getBoundingClientRect();
       if (
         event.clientX < rect.left ||
         event.clientX > rect.right ||

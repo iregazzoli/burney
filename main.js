@@ -1,5 +1,5 @@
 const associatedKeys = {};
 let myKeyboard = new Keyboard(canvas, associatedKeys);
-// myKeyboard.drawDefaultKeyboard();
-
-// DrawKeyboard(canvas, associatedKeys);
+document.getElementById("resetButton").addEventListener("click", () => {
+  myKeyboard.resetColoredKeys();
+});
