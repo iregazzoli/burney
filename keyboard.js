@@ -13,6 +13,7 @@ class Keyboard {
     this.whiteKeys = [];
     this.blackKeys = [];
     this.keys = [];
+    this.resetKey = false;
 
     this.TOTAL_KEYS = 88;
     this.NUM_WHITE_KEYS = 52;
@@ -64,6 +65,18 @@ class Keyboard {
 
   resetColoredKeys() {
     this.coloredKeys = {};
+  }
+
+  resetColoredKey() {
+    this.resetKey = true;
+  }
+
+  getResetKey() {
+    return this.resetKey;
+  }
+
+  getColoredKeys() {
+    return this.coloredKeys;
   }
 
   //Private
@@ -278,18 +291,17 @@ class Keyboard {
   }
 
   drawText(x, y, text, color = "black") {
-    var ctx = document.getElementById("canvas").getContext("2d");
-    ctx.font = "14px Arial";
-    ctx.fillStyle = color;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, x, y);
+    this.ctx.font = "14px Arial";
+    this.ctx.fillStyle = color;
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText(text, x, y);
   }
 
   assignMidiNumbers() {
-    var midiNumber = 21;
-    var blackKeyIndex = 1;
-    var blackKeyPattern = [true, true, false, true, true, true, false];
+    let midiNumber = 21;
+    let blackKeyIndex = 1;
+    let blackKeyPattern = [true, true, false, true, true, true, false];
 
     // Assign MIDI numbers to the first three keys
     this.whiteKeys[0].index = midiNumber++;
@@ -367,6 +379,13 @@ class Keyboard {
           y >= key.y &&
           y <= key.y + key.height
         ) {
+          if (this.resetKey) {
+            delete this.coloredKeys[key.index];
+            this.resetKey = false;
+            this.colorKeys(-1);
+            return;
+          }
+
           if (this.firstKeyIndex === null) {
             this.firstKeyIndex = key.index;
             if (!this.coloredKeys.hasOwnProperty(this.firstKeyIndex)) {
@@ -385,6 +404,7 @@ class Keyboard {
                 keySet.has(sKeyIndex)
               ) {
                 keySet.delete(sKeyIndex);
+
                 let keyInfo = this.AbsoluteToKeyInfo(
                   parseInt(key.index) - this.MIDI_DISPLACEMENT
                 );
