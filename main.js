@@ -61,13 +61,11 @@ function saveChanges() {
     return;
   }
 
-  // Replace the value
   originalSet.delete(fromMidi);
   originalSet.add(toMidi);
 
   // Update the display
   updateDisplay();
-  // myKeyboard.updateColoredKeys(coloredKeys);
 }
 
 document.getElementById("updateKey").addEventListener("click", saveChanges);
@@ -121,10 +119,8 @@ document.getElementById("resetKeyButton").addEventListener("click", () => {
 
 canvas.addEventListener("click", updateDisplay);
 
-document
-  .getElementById("applyTransformationBUtton")
-  .addEventListener("click", () => {
-    coloredKeys = myKeyboard.getColoredKeys();
-  });
+document.getElementById("applyChangesButton").addEventListener("click", () => {
+  coloredKeys = myKeyboard.getColoredKeys();
+});
 
 export { coloredKeys };
