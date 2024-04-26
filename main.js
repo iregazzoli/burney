@@ -22,7 +22,7 @@ function updateDisplay() {
         }
       })
       .join(", ");
-    displayText += `• Key ${noteName} -> ${values}<br>`;
+    displayText += `• Key ${noteName} → ${values}<br>`;
   }
   document.getElementById("mapKeysDisplay").innerHTML = displayText;
 }
