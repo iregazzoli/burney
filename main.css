@@ -67,12 +67,24 @@ body {
   display: block;
 }
 
-#mapKeysDisplay {
+#mapKeysDisplay, #mapKeysDisplayTitle {
   color: #fff;
   font-size: 24px;
   font-family: Arial, sans-serif;
   line-height: 1.5;
   margin: 10px 0;
   margin-left: 10px;
+}
 
+#mapKeysDisplay{
+  margin-left: 15px;
+}
+
+#resetAlert {
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
 }

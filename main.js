@@ -22,7 +22,7 @@ function updateDisplay() {
         }
       })
       .join(", ");
-    displayText += `Key ${noteName} -> ${values}<br>`;
+    displayText += `• Key ${noteName} -> ${values}<br>`;
   }
   document.getElementById("mapKeysDisplay").innerHTML = displayText;
 }
@@ -34,6 +34,16 @@ let myKeyboard = new Keyboard(canvas, associatedKeys);
 document.getElementById("resetKeyboardButton").addEventListener("click", () => {
   myKeyboard.resetColoredKeys();
   updateDisplay();
+
+  // Show the alert
+  let alert = document.getElementById("resetAlert");
+  alert.style.opacity = "1";
+  alert.style.visibility = "visible";
+
+  setTimeout(() => {
+    alert.style.opacity = "0";
+    alert.style.visibility = "hidden";
+  }, 3000);
 });
 
 document.getElementById("resetKeyButton").addEventListener("click", () => {
