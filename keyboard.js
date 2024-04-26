@@ -32,18 +32,19 @@ class Keyboard {
     this.BLACK_KEY_WIDTH = this.WHITE_KEY_WIDTH * 0.75;
     this.BLACK_KEY_HEIGHT = this.height * 0.66;
 
-    this.drawDefaultKeyboard();
+    this.drawDefaultKeyboard(true);
+    this.sortKeys();
     this.setupEventListeners();
   }
 
   //Public
-  drawDefaultKeyboard() {
+  drawDefaultKeyboard(initialDraw) {
     // just draw in all the white keys to begin with...
     for (let i = 0; i < this.NUM_WHITE_KEYS; i++) {
-      this.drawWhiteKey(i, false, false, true);
+      this.drawWhiteKey(i, false, false, initialDraw);
     }
     // draw first black key that is not from an octave
-    this.drawBlackKey(0, false, false, true);
+    this.drawBlackKey(0, false, false, initialDraw);
 
     // now draw all the rest of the black keys...
     // loop through all 7 octaves
@@ -53,12 +54,11 @@ class Keyboard {
     for (let octave = 0; octave < numOctaves; octave++) {
       // and draw 5 black notes per octave...
       for (let i = 0; i < 5; i++) {
-        this.drawBlackKey(curWhiteNoteIndex, false, false, true);
+        this.drawBlackKey(curWhiteNoteIndex, false, false, initialDraw);
         if (i == 1 || i == 4) curWhiteNoteIndex += 2;
         else curWhiteNoteIndex += 1;
       }
     }
-    this.sortKeys();
     this.assignMidiNumbers();
   }
 
@@ -404,19 +404,19 @@ class Keyboard {
           this.colorKeys(this.firstKeyIndex);
           break;
         }
+      }
+    });
 
-        document.addEventListener("click", (event) => {
-          let rect = this.canvas.getBoundingClientRect();
-          if (
-            event.clientX < rect.left ||
-            event.clientX > rect.right ||
-            event.clientY < rect.top ||
-            event.clientY > rect.bottom
-          ) {
-            this.firstKeyIndex = null;
-            this.drawDefaultKeyboard();
-          }
-        });
+    document.addEventListener("click", (event) => {
+      let rect = this.canvas.getBoundingClientRect();
+      if (
+        event.clientX < rect.left ||
+        event.clientX > rect.right ||
+        event.clientY < rect.top ||
+        event.clientY > rect.bottom
+      ) {
+        this.firstKeyIndex = null;
+        this.drawDefaultKeyboard(false);
       }
     });
   }
