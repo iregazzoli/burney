@@ -11,6 +11,10 @@ window.onload = function () {
 };
 
 function noteNameToMidi(noteName) {
+  if (!noteName) {
+    return null;
+  }
+
   const noteLookup = {
     C: 0,
     "C#": 1,
@@ -48,7 +52,10 @@ function saveChanges() {
   const volumeValue = document.getElementById("volume").value;
 
   const fromMidi = noteNameToMidi(fromValue);
-  const toMidi = noteNameToMidi(toValue);
+  let toMidi;
+  if (toValue) {
+    toMidi = noteNameToMidi(toValue);
+  }
   const originalKeyMidi = noteNameToMidi(originalKey);
 
   const originalArray = coloredKeys[originalKeyMidi];
@@ -63,8 +70,15 @@ function saveChanges() {
     return;
   }
 
-  // Replace the value
-  fromObject.value = toMidi;
+  // Check if the key is already mapped to the toValue
+  if (toMidi && originalArray.some((obj) => obj.value === toMidi)) {
+    throw new Error(`Key ${toValue} is already mapped`);
+  }
+
+  // Replace the value if toValue is not empty
+  if (toValue) {
+    fromObject.value = toMidi;
+  }
 
   // Update the volume
   fromObject.volume = volumeValue;
@@ -101,6 +115,7 @@ function updateDisplay() {
   document.getElementById("mapKeysDisplay").innerHTML = displayText;
 }
 
+//coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
 let coloredKeys = {};
 let canvas = document.getElementById("canvas");
 let myKeyboard = new Keyboard(canvas, coloredKeys);
