@@ -238,6 +238,7 @@ class Keyboard {
 
       let associatedKeyNums = this.coloredKeys[key];
       for (let associatedKeyNum of associatedKeyNums) {
+        silentKey = false;
         if (/^S\d+$/.test(associatedKeyNum)) {
           silentKey = true;
           associatedKeyNum = associatedKeyNum.substring(1);
@@ -246,7 +247,11 @@ class Keyboard {
           associatedKeyNum - this.MIDI_DISPLACEMENT
         );
         if (associatedKeyInfo.isBlack) {
-          test.push({ info: associatedKeyInfo, keyBeingMap: false });
+          test.push({
+            info: associatedKeyInfo,
+            keyBeingMap: false,
+            silentKey: silentKey,
+          });
         } else {
           this.drawWhiteKey(
             associatedKeyInfo.White_Index,
@@ -265,7 +270,7 @@ class Keyboard {
         true,
         key.keyBeingMap,
         false,
-        silentKey
+        key.silentKey
       );
     }
     //TODO FIX THE REDRAWING OF NAMES
