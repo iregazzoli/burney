@@ -26,7 +26,7 @@ canvas.addEventListener("click", function () {
         }
       })
       .join(", ");
-    displayText += `Key ${key} -> ${values}\n`;
+    displayText += `Key ${key} -> ${values}<br>`;
   }
   displayDiv.innerHTML = displayText;
 });
@@ -36,7 +36,6 @@ let coloredKeys = {};
 document
   .getElementById("applyTransformationBUtton")
   .addEventListener("click", () => {
-    console.log("clicked!");
     coloredKeys = myKeyboard.getColoredKeys();
   });
 
