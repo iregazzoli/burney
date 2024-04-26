@@ -1,8 +1,19 @@
 .row {
-  height: 33.33vh;
   width: 100vw; 
   display: flex;
   align-items: flex-start;
+}
+
+.row1 {
+  height: 15vh;
+}
+
+.row2 {
+  height: 40vh;
+}
+
+.row3 {
+  height: 45vh;
 }
 
 .canvas-column {
@@ -47,4 +58,21 @@ body {
   background-color: #6047FF;
   box-shadow: 0 5px #666;
   transform: translateY(4px);
+}
+
+.button.active {
+  background-color: #6047FF;
+}
+.canvas-wrapper canvas {
+  display: block;
+}
+
+#mapKeysDisplay {
+  color: #fff;
+  font-size: 24px;
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
+  margin: 10px 0;
+  margin-left: 10px;
+
 }

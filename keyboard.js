@@ -102,9 +102,9 @@ class Keyboard {
     C1 = "#000000"; // black
     C2 = "#323232"; // grey
     if (coloredKey) {
-      if (mappedKey) C2 = "#4663ac";
+      if (mappedKey) C2 = "#6047FF";
       else if (silentKey) C2 = "#ffff2b";
-      else C2 = "#c1d8f0";
+      else C2 = "#9585FF";
     }
     this.DrawRectWithBorder(
       this.X_BORDER +
@@ -130,9 +130,9 @@ class Keyboard {
     C1 = "#000000"; // black
     C2 = "#ffffff"; // white
     if (coloredKey) {
-      if (mappedKey) C2 = "#4663ac";
+      if (mappedKey) C2 = "#6047FF";
       else if (silentKey) C2 = "#ffff2b";
-      else C2 = "#c1d8f0";
+      else C2 = "#9585FF";
     }
 
     this.DrawRectWithBorder(
@@ -383,6 +383,9 @@ class Keyboard {
             delete this.coloredKeys[key.index];
             this.resetKey = false;
             this.colorKeys(-1);
+            document
+              .getElementById("resetKeyButton")
+              .classList.remove("active");
             return;
           }
 

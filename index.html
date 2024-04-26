@@ -14,12 +14,12 @@
     <!-- own CSS -->
     <link rel="stylesheet" type="text/css" href="main.css" />
 
-    <title>Piano</title>
+    <title>Midi Convertion</title>
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png" />
   </head>
   <body>
     <div class="container">
-      <div class="row">
+      <div class="row row1">
         <div class="col-4">
           <button id="resetKeyboardButton" class="button" type="button">
             Reset Keyboard
@@ -32,22 +32,26 @@
           </button>
         </div>
         <div class="col-4">
-          <div id="mapKeysDisplay">Mapped Keys</div>
         </div>
         <div class="col-4"></div>
       </div>
-      <div class="row">
-        <div class="col-4"></div>
+      <div class="row row2">
+        <div class="col-4">
+          <div id="mapKeysDisplay">Mapped Keys</div>
+        </div>
         <div class="col-4"></div>
         <div class="col-4"></div>
       </div>
-      <div class="row">
+      <div class="row row3">
         <div class="col-4 canvas-column">
           <div class="canvas-wrapper">
+            <canvas id="pianoEnclosure" width="1700" height="20"
+            ></canvas>
             <canvas id="canvas" width="1700" height="200"
-              >Your browser does not support the HTML5 canvas tag.</canvas
+            >Your browser does not support the HTML5 canvas tag.</canvas
             >
           </div>
+        </div>
         </div>
         <div class="col-4"></div>
         <div class="col-4"></div>
