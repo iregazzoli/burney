@@ -4,6 +4,10 @@ window.onload = function () {
 
   context.fillStyle = "#252525";
   context.fillRect(0, 0, canvas.width, canvas.height);
+
+  window.updateVolumeValue = function (value) {
+    document.getElementById("volumeValue").innerText = value;
+  };
 };
 
 function updateDisplay() {

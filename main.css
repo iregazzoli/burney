@@ -89,10 +89,54 @@ body {
   visibility: hidden;
   transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
 }
-.modal-dialog {
-  margin: 0;
-  position: absolute;
+
+
+.custom-modal {
+  position: fixed;
   top: 40%;
   left: 80%;
   transform: translate(-50%, -50%);
+  z-index: 1050; /* This is to ensure the modal appears above other elements */
 }
+
+.modal-dialog {
+  margin: 1.75rem auto;
+  max-width: 800px;
+}
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 400px; /* Adjust this value to make the modal wider */
+  pointer-events: auto;
+  background-color: #7780E4;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: .3rem;
+  outline: 0;
+  padding: 20px; /* Add padding to create a margin around the text */
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6; /* Add a bottom border to the header */
+  margin-bottom: 20px;
+}
+
+.modal-content input {
+  background-color: #989FEB; /* Replace with your desired color */
+}
+
+.modal-content {
+  color: #fff; /* Change the text color to white */
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  background: #DCD6FF;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  background: #9585FF;
+}
+
+
