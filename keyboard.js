@@ -68,7 +68,9 @@ class Keyboard {
   }
 
   resetColoredKey() {
-    this.resetKey = true;
+    this.resetKey = !this.resetKey;
+    if (!this.resetKey)
+      document.getElementById("resetKeyButton").classList.remove("active");
   }
 
   getResetKey() {

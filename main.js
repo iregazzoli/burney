@@ -47,8 +47,8 @@ document.getElementById("resetKeyboardButton").addEventListener("click", () => {
 });
 
 document.getElementById("resetKeyButton").addEventListener("click", () => {
-  myKeyboard.resetColoredKey();
   document.getElementById("resetKeyButton").classList.add("active");
+  myKeyboard.resetColoredKey();
 });
 
 canvas.addEventListener("click", updateDisplay);
