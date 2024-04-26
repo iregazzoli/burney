@@ -1,19 +1,6 @@
 const associatedKeys = {};
-let canvas = document.getElementById("canvas");
-let myKeyboard = new Keyboard(canvas, associatedKeys);
-document.getElementById("resetKeyboardButton").addEventListener("click", () => {
-  myKeyboard.resetColoredKeys();
-});
 
-//TODO: Make this buttom red while myKeyboard.resetKey is true
-document.getElementById("resetKeyButton").addEventListener("click", () => {
-  myKeyboard.resetColoredKey();
-});
-
-let mappedKeys = myKeyboard.getColoredKeys();
-let displayDiv = document.getElementById("mapKeysDisplay");
-
-canvas.addEventListener("click", function () {
+function updateDisplay() {
   let mappedKeys = myKeyboard.getColoredKeys();
   let displayText = "";
   for (let key in mappedKeys) {
@@ -28,8 +15,23 @@ canvas.addEventListener("click", function () {
       .join(", ");
     displayText += `Key ${key} -> ${values}<br>`;
   }
-  displayDiv.innerHTML = displayText;
+  document.getElementById("mapKeysDisplay").innerHTML = displayText;
+}
+
+let canvas = document.getElementById("canvas");
+let myKeyboard = new Keyboard(canvas, associatedKeys);
+
+document.getElementById("resetKeyboardButton").addEventListener("click", () => {
+  myKeyboard.resetColoredKeys();
+  updateDisplay();
 });
+//TODO: Make this buttom red while myKeyboard.resetKey is true
+document.getElementById("resetKeyButton").addEventListener("click", () => {
+  myKeyboard.resetColoredKey();
+  updateDisplay();
+});
+
+canvas.addEventListener("click", updateDisplay);
 
 let coloredKeys = {};
 
