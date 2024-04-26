@@ -80,7 +80,7 @@ body {
   margin-left: 15px;
 }
 
-#resetAlert {
+#resetAlert, #resetKeyAlert {
   position: absolute;
   top: 0;
   right: 0;

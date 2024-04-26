@@ -386,6 +386,11 @@ class Keyboard {
             document
               .getElementById("resetKeyButton")
               .classList.remove("active");
+
+            this.showAlert(
+              "resetKeyAlert",
+              `Key ${this.midiToNoteName(key.index)} has been reset!`
+            );
             return;
           }
 
@@ -467,5 +472,17 @@ class Keyboard {
     let octave = Math.floor(midiNumber / 12) - 1;
     let noteIndex = midiNumber % 12;
     return noteNames[noteIndex] + octave;
+  }
+
+  showAlert(alertId, message) {
+    let alert = document.getElementById(alertId);
+    alert.innerHTML = message;
+    alert.style.opacity = "1";
+    alert.style.visibility = "visible";
+
+    setTimeout(() => {
+      alert.style.opacity = "0";
+      alert.style.visibility = "hidden";
+    }, 3000);
   }
 }
