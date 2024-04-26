@@ -30,3 +30,14 @@ canvas.addEventListener("click", function () {
   }
   displayDiv.innerHTML = displayText;
 });
+
+let coloredKeys = {};
+
+document
+  .getElementById("applyTransformationBUtton")
+  .addEventListener("click", () => {
+    console.log("clicked!");
+    coloredKeys = myKeyboard.getColoredKeys();
+  });
+
+export { coloredKeys };

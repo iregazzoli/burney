@@ -1,3 +1,4 @@
+import { coloredKeys } from "./main.js";
 // Variables para las salidas MIDI
 let midiOut;
 // Variable to keep track of whether the MIDI input should be processing messages
@@ -103,13 +104,15 @@ function getSymmetricMIDINote(midiNote) {
 //TODO hacewr que notas mas alla de la original las toque en otro canal
 // o que todas vayan a otro canal y chau
 function mapVariousNotes(midiNote) {
-  if (midiNote === 21) {
-    toggleProcessingMIDIMessages();
-  }
-  if (midiNote === 60) {
-    return [midiNote, 61, 72];
-  } else if (midiNote === 61) {
-    return [midiNote, 67, 25];
+  console.log(coloredKeys);
+  if (coloredKeys.hasOwnProperty(midiNote)) {
+    return Array.from(coloredKeys[midiNote]).filter((value) => {
+      if (typeof value === "string" && value.startsWith("S")) {
+        return false;
+      } else {
+        return true;
+      }
+    });
   } else {
     return [midiNote];
   }
