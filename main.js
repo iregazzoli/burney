@@ -45,24 +45,29 @@ function saveChanges() {
   const fromValue = document.getElementById("from").value;
   const toValue = document.getElementById("to").value;
   const originalKey = document.getElementById("originalKeyValue").innerText;
+  const volumeValue = document.getElementById("volume").value;
 
   const fromMidi = noteNameToMidi(fromValue);
   const toMidi = noteNameToMidi(toValue);
   const originalKeyMidi = noteNameToMidi(originalKey);
 
-  const originalSet = coloredKeys[originalKeyMidi];
-  if (!originalSet) {
+  const originalArray = coloredKeys[originalKeyMidi];
+  if (!originalArray) {
     console.error(`No key found for ${originalKey}`);
     return;
   }
 
-  if (!originalSet.has(fromMidi)) {
+  const fromObject = originalArray.find((obj) => obj.value === fromMidi);
+  if (!fromObject) {
     console.error(`No value found for ${fromValue}`);
     return;
   }
 
-  originalSet.delete(fromMidi);
-  originalSet.add(toMidi);
+  // Replace the value
+  fromObject.value = toMidi;
+
+  // Update the volume
+  fromObject.volume = volumeValue;
 
   // Update the display
   updateDisplay();
@@ -75,15 +80,18 @@ function updateDisplay() {
   let displayText = "";
   for (let key in coloredKeys) {
     let noteName = myKeyboard.midiToNoteName(parseInt(key));
-    let values = Array.from(coloredKeys[key])
-      .map((value) => {
+    let values = coloredKeys[key]
+      .map((keyObject) => {
         let displayValue;
-        if (typeof value === "string" && value.startsWith("S")) {
+        if (
+          typeof keyObject.value === "string" &&
+          keyObject.value.startsWith("S")
+        ) {
           displayValue = `<del>${myKeyboard.midiToNoteName(
-            parseInt(value.slice(1))
+            parseInt(keyObject.value.slice(1))
           )}</del>`;
         } else {
-          displayValue = myKeyboard.midiToNoteName(value);
+          displayValue = myKeyboard.midiToNoteName(keyObject.value);
         }
         return `<span class="clickable" onclick="document.getElementById('from').value = '${displayValue}'; document.getElementById('originalKeyValue').innerText = '${noteName}';">${displayValue}</span>`;
       })
@@ -121,6 +129,7 @@ canvas.addEventListener("click", updateDisplay);
 
 document.getElementById("applyChangesButton").addEventListener("click", () => {
   coloredKeys = myKeyboard.getColoredKeys();
+  console.log(coloredKeys);
 });
 
 export { coloredKeys };

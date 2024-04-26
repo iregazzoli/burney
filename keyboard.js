@@ -251,15 +251,15 @@ class Keyboard {
         this.reDrawNeighbourBlackKeys(keyInfo.White_Index);
       }
 
-      let associatedKeyNums = this.coloredKeys[key];
-      for (let associatedKeyNum of associatedKeyNums) {
+      let associatedKeyObjects = this.coloredKeys[key];
+      for (let associatedKeyObject of associatedKeyObjects) {
         silentKey = false;
-        if (/^S\d+$/.test(associatedKeyNum)) {
+        if (/^S\d+$/.test(associatedKeyObject.value)) {
           silentKey = true;
-          associatedKeyNum = associatedKeyNum.substring(1);
+          associatedKeyObject.value = associatedKeyObject.value.substring(1);
         }
         let associatedKeyInfo = this.AbsoluteToKeyInfo(
-          associatedKeyNum - this.MIDI_DISPLACEMENT
+          associatedKeyObject.value - this.MIDI_DISPLACEMENT
         );
         if (associatedKeyInfo.isBlack) {
           test.push({
@@ -399,21 +399,26 @@ class Keyboard {
           if (this.firstKeyIndex === null) {
             this.firstKeyIndex = key.index;
             if (!this.coloredKeys.hasOwnProperty(this.firstKeyIndex)) {
-              this.coloredKeys[this.firstKeyIndex] = new Set();
+              this.coloredKeys[this.firstKeyIndex] = [];
             }
           } else {
             let sKeyIndex = "S" + key.index;
-            let keySet = this.coloredKeys[this.firstKeyIndex];
+            let keyArray = this.coloredKeys[this.firstKeyIndex];
 
-            if (keySet.has(key.index) || keySet.has(sKeyIndex)) {
-              if (key.index === this.firstKeyIndex && keySet.has(key.index)) {
-                keySet.delete(key.index);
-                keySet.add(sKeyIndex);
+            let keyObject = keyArray.find(
+              (obj) => obj.value === key.index || obj.value === sKeyIndex
+            );
+            if (keyObject) {
+              if (
+                key.index === this.firstKeyIndex &&
+                keyObject.value === key.index
+              ) {
+                keyObject.value = sKeyIndex;
               } else if (
                 key.index === this.firstKeyIndex &&
-                keySet.has(sKeyIndex)
+                keyObject.value === sKeyIndex
               ) {
-                keySet.delete(sKeyIndex);
+                keyObject.value = key.index;
 
                 let keyInfo = this.AbsoluteToKeyInfo(
                   parseInt(key.index) - this.MIDI_DISPLACEMENT
@@ -423,7 +428,7 @@ class Keyboard {
                   : this.drawWhiteKey(keyInfo.White_Index);
                 this.reDrawNeighbourBlackKeys(keyInfo.White_Index);
               } else {
-                keySet.delete(key.index);
+                keyArray = keyArray.filter((obj) => obj.value !== key.index);
                 let keyInfo = this.AbsoluteToKeyInfo(
                   parseInt(key.index) - this.MIDI_DISPLACEMENT
                 );
@@ -433,7 +438,7 @@ class Keyboard {
                 this.reDrawNeighbourBlackKeys(keyInfo.White_Index);
               }
             } else {
-              keySet.add(key.index);
+              keyArray.push({ value: key.index, volume: 100 });
             }
           }
           this.colorKeys(this.firstKeyIndex);
