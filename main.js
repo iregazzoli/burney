@@ -7,11 +7,11 @@ window.onload = function () {
 };
 
 function updateDisplay() {
-  let mappedKeys = myKeyboard.getColoredKeys();
+  coloredKeys = myKeyboard.getColoredKeys();
   let displayText = "";
-  for (let key in mappedKeys) {
+  for (let key in coloredKeys) {
     let noteName = myKeyboard.midiToNoteName(parseInt(key));
-    let values = Array.from(mappedKeys[key])
+    let values = Array.from(coloredKeys[key])
       .map((value) => {
         if (typeof value === "string" && value.startsWith("S")) {
           return `<del>${myKeyboard.midiToNoteName(
@@ -27,9 +27,9 @@ function updateDisplay() {
   document.getElementById("mapKeysDisplay").innerHTML = displayText;
 }
 
-const associatedKeys = {};
+let coloredKeys = {};
 let canvas = document.getElementById("canvas");
-let myKeyboard = new Keyboard(canvas, associatedKeys);
+let myKeyboard = new Keyboard(canvas, coloredKeys);
 
 document.getElementById("resetKeyboardButton").addEventListener("click", () => {
   myKeyboard.resetColoredKeys();
@@ -52,8 +52,6 @@ document.getElementById("resetKeyButton").addEventListener("click", () => {
 });
 
 canvas.addEventListener("click", updateDisplay);
-
-let coloredKeys = {};
 
 document
   .getElementById("applyTransformationBUtton")

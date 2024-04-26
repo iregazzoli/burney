@@ -78,6 +78,7 @@ body {
 
 #mapKeysDisplay{
   margin-left: 15px;
+  user-select: text;
 }
 
 #resetAlert, #resetKeyAlert {
@@ -87,4 +88,11 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+.modal-dialog {
+  margin: 0;
+  position: absolute;
+  top: 40%;
+  left: 80%;
+  transform: translate(-50%, -50%);
 }

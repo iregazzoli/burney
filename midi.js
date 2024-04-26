@@ -54,23 +54,21 @@ function handleMIDIMessage(message) {
   if (!shouldProcessMIDIMessages) {
     return;
   }
-  console.log("Mensaje es:", message);
   let data = message.data;
   let command = data[0];
   let note = data[1];
   let velocity = data[2] || 0;
 
   if (command === 0x90 || command === 0x80) {
-    // console.log(
-    //   "nota presionada",
-    //   command === 0x90 ? "note-on" : "note-off",
-    //   data[1]
-    // );
     let notes = mapVariousNotes(note);
 
+    let commandType;
+    let newCommand;
     for (let i = 0; i < notes.length; i++) {
-      console.log("Playing note: ", notes[i]);
-      sendMIDIMessage([command, notes[i], velocity]);
+      commandType = command & 0xf0;
+      newCommand = commandType | 0x01;
+      // Set the channel to 1 (last 4 bits)
+      sendMIDIMessage([newCommand, notes[i], velocity]);
     }
   }
 }
@@ -104,7 +102,6 @@ function getSymmetricMIDINote(midiNote) {
 //TODO hacewr que notas mas alla de la original las toque en otro canal
 // o que todas vayan a otro canal y chau
 function mapVariousNotes(midiNote) {
-  console.log(coloredKeys);
   if (coloredKeys.hasOwnProperty(midiNote)) {
     return Array.from(coloredKeys[midiNote]).filter((value) => {
       if (typeof value === "string" && value.startsWith("S")) {
