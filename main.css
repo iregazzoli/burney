@@ -81,7 +81,7 @@ body {
   user-select: text;
 }
 
-#resetAlert, #resetKeyAlert {
+#resetAlert, #resetKeyAlert, #alreadyMapKey {
   position: absolute;
   top: 0;
   right: 0;

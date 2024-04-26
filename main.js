@@ -72,6 +72,16 @@ function saveChanges() {
 
   // Check if the key is already mapped to the toValue
   if (toMidi && originalArray.some((obj) => obj.value === toMidi)) {
+    // Show the alert
+    let alert = document.getElementById("alreadyMapKey");
+    alert.style.opacity = "1";
+    alert.style.visibility = "visible";
+
+    setTimeout(() => {
+      alert.style.opacity = "0";
+      alert.style.visibility = "hidden";
+    }, 3000);
+
     throw new Error(`Key ${toValue} is already mapped`);
   }
 
