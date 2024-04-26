@@ -28,7 +28,6 @@ document.getElementById("resetKeyboardButton").addEventListener("click", () => {
 //TODO: Make this buttom red while myKeyboard.resetKey is true
 document.getElementById("resetKeyButton").addEventListener("click", () => {
   myKeyboard.resetColoredKey();
-  updateDisplay();
 });
 
 canvas.addEventListener("click", updateDisplay);
