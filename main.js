@@ -218,6 +218,15 @@ function saveConfiguration(index) {
   updateConfigurationsDisplay();
 }
 
+function deleteConfiguration(index) {
+  if (index !== undefined && pianoConfigurations[index]) {
+    // Delete the configuration at the provided index
+    pianoConfigurations.splice(index, 1);
+  }
+
+  updateConfigurationsDisplay();
+}
+
 //coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
 let coloredKeys = {};
 let specialKeys;
@@ -308,6 +317,27 @@ document
       link.textContent = "Config " + (i + 1);
       link.addEventListener("click", function () {
         saveConfiguration(i);
+      });
+      item.appendChild(link);
+      dropdown.appendChild(item);
+    }
+  });
+
+document
+  .getElementById("deleteConfigButton")
+  .addEventListener("click", function () {
+    let dropdown = document.getElementById("deleteConfigDropdown");
+    dropdown.innerHTML = ""; // Clear the dropdown
+
+    // Add existing configurations
+    for (let i = 0; i < pianoConfigurations.length; i++) {
+      let item = document.createElement("li");
+      let link = document.createElement("a");
+      link.className = "dropdown-item";
+      link.href = "#";
+      link.textContent = "Config " + (i + 1);
+      link.addEventListener("click", function () {
+        deleteConfiguration(i);
       });
       item.appendChild(link);
       dropdown.appendChild(item);
