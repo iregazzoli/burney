@@ -125,8 +125,20 @@ function updateDisplay() {
   document.getElementById("mapKeysDisplay").innerHTML = displayText;
 }
 
+function updateSpecialKeysDisplay() {
+  specialKeys = myKeyboard.getSpecialKeys();
+  let displayText = "";
+  for (let key in specialKeys) {
+    let noteName = myKeyboard.midiToNoteName(parseInt(key));
+    let value =
+      specialKeys[key].charAt(0).toUpperCase() + specialKeys[key].slice(1);
+    displayText += `• Key ${noteName} → ${value}<br>`;
+  }
+  document.getElementById("specialKeysDisplay").innerHTML = displayText;
+}
 //coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
 let coloredKeys = {};
+let specialKeys;
 let canvas = document.getElementById("canvas");
 let myKeyboard = new Keyboard(canvas, coloredKeys);
 
@@ -145,15 +157,28 @@ document.getElementById("resetKeyboardButton").addEventListener("click", () => {
   }, 3000);
 });
 
-document.getElementById("resetKeyButton").addEventListener("click", () => {
-  document.getElementById("resetKeyButton").classList.add("active");
+let resetKeyButton = document.getElementById("resetKeyButton");
+resetKeyButton.addEventListener("click", () => {
+  resetKeyButton.classList.add("active");
   myKeyboard.resetColoredKey();
 });
 
+let addResetButton = document.getElementById("addResetButton");
+addResetButton.addEventListener("click", () => {
+  addResetButton.classList.add("active");
+  myKeyboard.mapResetKey();
+});
+
 canvas.addEventListener("click", updateDisplay);
+canvas.addEventListener("click", updateSpecialKeysDisplay);
 
 document.getElementById("applyChangesButton").addEventListener("click", () => {
   coloredKeys = myKeyboard.getColoredKeys();
+  specialKeys = myKeyboard.getSpecialKeys();
 });
 
-export { coloredKeys };
+function resetColoredKeys() {
+  coloredKeys = {};
+}
+
+export { coloredKeys, specialKeys, resetColoredKeys };

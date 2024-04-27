@@ -1,4 +1,4 @@
-import { coloredKeys } from "./main.js";
+import { coloredKeys, specialKeys, resetColoredKeys } from "./main.js";
 // Variables para las salidas MIDI
 let midiOut;
 // Variable to keep track of whether the MIDI input should be processing messages
@@ -104,6 +104,11 @@ function getSymmetricMIDINote(midiNote) {
 //TODO hacewr que notas mas alla de la original las toque en otro canal
 // o que todas vayan a otro canal y chau
 function mapVariousNotes(midiNote) {
+  if (specialKeys.hasOwnProperty(midiNote)) {
+    if (specialKeys[midiNote] == "reset") {
+      resetColoredKeys();
+    }
+  }
   if (coloredKeys.hasOwnProperty(midiNote)) {
     return coloredKeys[midiNote];
   } else {

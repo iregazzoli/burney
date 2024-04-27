@@ -76,7 +76,7 @@ body {
   width: 150px; 
 }
 
-#mapKeysDisplay, #mapKeysDisplayTitle {
+#mapKeysDisplay, #mapKeysDisplayTitle, #specialKeysDisplayTitle, #specialKeysDisplay {
   color: #fff;
   font-size: 24px;
   font-family: Arial, sans-serif;
@@ -85,7 +85,17 @@ body {
   margin-left: 10px;
 }
 
-#mapKeysDisplay{
+#specialKeysDisplayTitle {
+  margin-left: 45px;
+  margin-bottom: 0px;
+}
+
+#specialKeysDisplay {
+  margin-top: 0px;
+  margin-left: 55px;
+}
+
+#mapKeysDisplay {
   margin-left: 15px;
   user-select: text;
 }

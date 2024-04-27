@@ -9,11 +9,13 @@ class Keyboard {
   constructor(canvas, coloredKeysParam = {}) {
     this.canvas = canvas;
     this.coloredKeys = coloredKeysParam;
+    this.specialKeys = {};
     this.firstKeyIndex = null;
     this.whiteKeys = [];
     this.blackKeys = [];
     this.keys = [];
     this.resetKey = false;
+    this.addResetKey = false;
 
     this.TOTAL_KEYS = 88;
     this.NUM_WHITE_KEYS = 52;
@@ -79,6 +81,15 @@ class Keyboard {
 
   getColoredKeys() {
     return this.coloredKeys;
+  }
+
+  mapResetKey() {
+    this.addResetKey = !this.addResetKey;
+    document.getElementById("addResetButton").classList.remove("active");
+  }
+
+  getSpecialKeys() {
+    return this.specialKeys;
   }
 
   //Private
@@ -394,6 +405,16 @@ class Keyboard {
               "resetKeyAlert",
               `Key ${this.midiToNoteName(key.index)} has been reset!`
             );
+            return;
+          }
+
+          if (this.addResetKey) {
+            this.specialKeys[key.index] = "reset";
+            this.addResetKey = false;
+
+            document
+              .getElementById("addResetButton")
+              .classList.remove("active");
             return;
           }
 
