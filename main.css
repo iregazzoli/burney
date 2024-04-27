@@ -72,9 +72,18 @@ body {
   display: block;
 }
 
-#resetKeyboardButton, #addResetButton {
-  width: 150px; 
+#resetKeyboardButton, #saveConfigurationButton {
+  width: 175px; 
 }
+
+#resetKeyButton, #deleteConfigButton {
+  width: 190px;
+}
+
+#setResetButton, #setConfigButton {
+  width: 195px;
+}
+
 
 #mapKeysDisplay, #mapKeysDisplayTitle, #specialKeysDisplayTitle, #specialKeysDisplay, #configurationsDisplayTitle, #configurationsDisplay {
   color: #fff;
@@ -120,6 +129,10 @@ body {
 
 .dropdown-menu {
   background-color: #9585FF;
+}
+
+.dropdown-menu .dropdown-item {
+  color: white;
 }
 
 .dropdown-menu .dropdown-item:hover {

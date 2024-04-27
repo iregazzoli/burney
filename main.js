@@ -265,11 +265,6 @@ setResetButton.addEventListener("click", () => {
 canvas.addEventListener("click", updateDisplay);
 canvas.addEventListener("click", updateSpecialKeysDisplay);
 
-document.getElementById("applyChangesButton").addEventListener("click", () => {
-  coloredKeys = myKeyboard.getColoredKeys();
-  specialKeys = myKeyboard.getSpecialKeys();
-});
-
 document
   .getElementById("setConfigButton")
   .addEventListener("click", function () {
