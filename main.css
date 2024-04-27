@@ -3,6 +3,11 @@
   display: flex;
   align-items: flex-start;
 }
+.sub-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+}
 
 .row1 {
   height: 15vh;
@@ -65,6 +70,10 @@ body {
 }
 .canvas-wrapper canvas {
   display: block;
+}
+
+#resetKeyboardButton, #addResetButton {
+  width: 150px; 
 }
 
 #mapKeysDisplay, #mapKeysDisplayTitle {
