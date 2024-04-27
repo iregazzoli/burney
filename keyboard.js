@@ -381,6 +381,7 @@ class Keyboard {
           y >= key.y &&
           y <= key.y + key.height
         ) {
+          //Remove key since Reset Key button was press
           if (this.resetKey) {
             delete this.coloredKeys[key.index];
             this.resetKey = false;
@@ -396,12 +397,14 @@ class Keyboard {
             return;
           }
 
+          //If its the first time we click on a note we add it as a key
           if (this.firstKeyIndex === null) {
             this.firstKeyIndex = key.index;
             if (!this.coloredKeys.hasOwnProperty(this.firstKeyIndex)) {
               this.coloredKeys[this.firstKeyIndex] = [];
             }
           } else {
+            //Note is already on colored keys so we add notes to map to
             let sKeyIndex = "S" + key.index;
             let keyArray = this.coloredKeys[this.firstKeyIndex];
 
@@ -409,11 +412,16 @@ class Keyboard {
               (obj) => obj.value === key.index || obj.value === sKeyIndex
             );
             if (keyObject) {
+              //Key pressed is already on the mapped notes of the first press key
               if (
                 key.index === this.firstKeyIndex &&
                 keyObject.value === key.index
               ) {
-                keyObject.value = sKeyIndex;
+                // The key we press was the original first key we pressed, so it need special treatment.
+                //TODO if we want Snotes remember to change this to instead of deleting the vlaue change it to SNote
+                this.coloredKeys[this.firstKeyIndex] = this.coloredKeys[
+                  this.firstKeyIndex
+                ].filter((obj) => obj.value !== key.index);
               } else if (
                 key.index === this.firstKeyIndex &&
                 keyObject.value === sKeyIndex
@@ -428,7 +436,10 @@ class Keyboard {
                   : this.drawWhiteKey(keyInfo.White_Index);
                 this.reDrawNeighbourBlackKeys(keyInfo.White_Index);
               } else {
-                keyArray = keyArray.filter((obj) => obj.value !== key.index);
+                // The key we press wasn't the original first key we pressed, so we remove it.
+                this.coloredKeys[this.firstKeyIndex] = this.coloredKeys[
+                  this.firstKeyIndex
+                ].filter((obj) => obj.value !== key.index);
                 let keyInfo = this.AbsoluteToKeyInfo(
                   parseInt(key.index) - this.MIDI_DISPLACEMENT
                 );
@@ -438,6 +449,7 @@ class Keyboard {
                 this.reDrawNeighbourBlackKeys(keyInfo.White_Index);
               }
             } else {
+              // Note wasn't on the mapped keys of the first key we pressed so we add it
               keyArray.push({ value: key.index, volume: 100 });
             }
           }
