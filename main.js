@@ -222,6 +222,11 @@ function deleteConfiguration(index) {
   if (index !== undefined && pianoConfigurations[index]) {
     // Delete the configuration at the provided index
     pianoConfigurations.splice(index, 1);
+
+    // Update the IDs of the remaining configurations
+    for (let i = index; i < pianoConfigurations.length; i++) {
+      pianoConfigurations[i].id = i + 1;
+    }
   }
 
   updateConfigurationsDisplay();
