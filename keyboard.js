@@ -16,7 +16,8 @@ class Keyboard {
     this.keys = [];
     this.resetKey = false;
     this.addResetKey = false;
-    this.setKey;
+    this.setConfigKey = false;
+    this.selectedConfig = null;
 
     this.TOTAL_KEYS = 88;
     this.NUM_WHITE_KEYS = 52;
@@ -87,6 +88,13 @@ class Keyboard {
   mapResetKey() {
     this.addResetKey = !this.addResetKey;
     document.getElementById("addResetButton").classList.remove("active");
+  }
+
+  mapConfigKey(selectedConfig) {
+    this.setConfigKey = !this.setConfigKey;
+    this.selectedConfig = selectedConfig;
+
+    document.getElementById("setConfigButton").classList.remove("active");
   }
 
   getSpecialKeys() {
@@ -416,6 +424,21 @@ class Keyboard {
 
             document
               .getElementById("addResetButton")
+              .classList.remove("active");
+            return;
+          }
+
+          if (this.setConfigKey) {
+            if (this.selectedConfig === null) {
+              alert("Please select a configuration before setting a key.");
+              return;
+            }
+
+            this.specialKeys[key.index] = this.selectedConfig;
+            this.setConfigKey = false;
+
+            document
+              .getElementById("setConfigButton")
               .classList.remove("active");
             return;
           }

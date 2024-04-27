@@ -95,6 +95,15 @@ body {
   margin-left: 55px;
 }
 
+#configurationsDisplayTitle {
+  margin-bottom: 0px;
+}
+
+#configurationsDisplay {
+  margin-top: 0px;
+  margin-left: 25px;
+}
+
 #mapKeysDisplay {
   margin-left: 15px;
   user-select: text;

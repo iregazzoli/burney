@@ -141,9 +141,33 @@ function resetColoredKeys() {
   coloredKeys = {};
 }
 
+function activateConfig(id) {
+  // Find the index of the configuration with the given id
+  let index = pianoConfigurations.findIndex((config) => config.id === id);
+
+  // If no configuration with the given id is found, exit the function
+  if (index === -1) return;
+
+  // Toggle the active status of the selected configuration
+  pianoConfigurations[index].active = !pianoConfigurations[index].active;
+
+  // If the selected configuration is now active, deactivate all other configurations
+  if (pianoConfigurations[index].active) {
+    for (let i = 0; i < pianoConfigurations.length; i++) {
+      if (i !== index) {
+        pianoConfigurations[i].active = false;
+      }
+    }
+  }
+
+  // Update the display to reflect the changes
+  updateConfigurationsDisplay();
+}
+
 function updateConfigurationsDisplay() {
   let displayText = "";
-  for (let config of pianoConfigurations) {
+  for (let i = 0; i < pianoConfigurations.length; i++) {
+    let config = pianoConfigurations[i];
     displayText += `<div style="padding-bottom: 10px;">`;
     displayText += `• Configuration: #${config.id}<br>`;
     displayText += `• Active: <span style="color: ${
@@ -187,6 +211,7 @@ let specialKeys;
 let pianoConfigurations = [];
 let canvas = document.getElementById("canvas");
 let myKeyboard = new Keyboard(canvas, coloredKeys);
+let selectedConfig = null;
 
 document.getElementById("resetKeyboardButton").addEventListener("click", () => {
   myKeyboard.resetColoredKeys();
@@ -235,7 +260,8 @@ document
       link.href = "#";
       link.textContent = "Config " + (i + 1);
       link.addEventListener("click", function () {
-        // Handle selection of this configuration here
+        selectedConfig = "Config " + (i + 1);
+        myKeyboard.mapConfigKey(selectedConfig);
       });
       item.appendChild(link);
       dropdown.appendChild(item);
