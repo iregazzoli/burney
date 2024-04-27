@@ -256,9 +256,9 @@ resetKeyButton.addEventListener("click", () => {
   myKeyboard.resetColoredKey();
 });
 
-let addResetButton = document.getElementById("addResetButton");
-addResetButton.addEventListener("click", () => {
-  addResetButton.classList.add("active");
+let setResetButton = document.getElementById("setResetButton");
+setResetButton.addEventListener("click", () => {
+  setResetButton.classList.add("active");
   myKeyboard.mapResetKey();
 });
 

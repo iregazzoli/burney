@@ -91,7 +91,7 @@ class Keyboard {
 
   mapResetKey() {
     this.addResetKey = !this.addResetKey;
-    document.getElementById("addResetButton").classList.remove("active");
+    document.getElementById("setResetButton").classList.remove("active");
   }
 
   mapConfigKey(selectedConfig) {
@@ -423,11 +423,17 @@ class Keyboard {
           }
 
           if (this.addResetKey) {
-            this.specialKeys[key.index] = "reset";
+            if (this.specialKeys[key.index] === "reset") {
+              // If the key is already a reset key, remove it
+              delete this.specialKeys[key.index];
+            } else {
+              // Otherwise, add it as a reset key
+              this.specialKeys[key.index] = "reset";
+            }
             this.addResetKey = false;
 
             document
-              .getElementById("addResetButton")
+              .getElementById("setResetButton")
               .classList.remove("active");
             return;
           }
@@ -438,7 +444,14 @@ class Keyboard {
               return;
             }
 
-            this.specialKeys[key.index] = this.selectedConfig;
+            if (this.specialKeys[key.index] === this.selectedConfig) {
+              // If the key is already set to this configuration, remove it
+              delete this.specialKeys[key.index];
+            } else {
+              // Otherwise, set it to this configuration
+              this.specialKeys[key.index] = this.selectedConfig;
+            }
+
             this.setConfigKey = false;
 
             document
