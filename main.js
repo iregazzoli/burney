@@ -117,7 +117,7 @@ function updateDisplay() {
         } else {
           displayValue = myKeyboard.midiToNoteName(keyObject.value);
         }
-        return `<span class="clickable" onclick="document.getElementById('from').value = '${displayValue}'; document.getElementById('originalKeyValue').innerText = '${noteName}';">${displayValue}</span>`;
+        return `<span class="clickable" onclick="document.getElementById('from').value = '${displayValue}'; document.getElementById('originalKeyValue').innerText = '${noteName}'; document.getElementById('volume').value = '${keyObject.volume}'; document.getElementById('volumeValue').innerText = '${keyObject.volume}';">${displayValue}</span>`;
       })
       .join(", ");
     displayText += `• Key ${noteName} → ${values}<br>`;
