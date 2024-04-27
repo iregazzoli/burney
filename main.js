@@ -154,7 +154,6 @@ canvas.addEventListener("click", updateDisplay);
 
 document.getElementById("applyChangesButton").addEventListener("click", () => {
   coloredKeys = myKeyboard.getColoredKeys();
-  console.log(coloredKeys);
 });
 
 export { coloredKeys };

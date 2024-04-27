@@ -48,7 +48,6 @@ function onMIDIFailure() {
   console.log("Could not access MIDI devices.");
 }
 
-// Función para manejar los mensajes MIDI entrantes
 function handleMIDIMessage(message) {
   // If shouldProcessMIDIMessages is false, return immediately without processing the message
   if (!shouldProcessMIDIMessages) {
@@ -67,8 +66,10 @@ function handleMIDIMessage(message) {
     for (let i = 0; i < notes.length; i++) {
       commandType = command & 0xf0;
       newCommand = commandType | 0x01;
+      // Calculate the new velocity
+      let newVelocity = Math.round(velocity * (notes[i].volume / 100));
       // Set the channel to 1 (last 4 bits)
-      sendMIDIMessage([newCommand, notes[i], velocity]);
+      sendMIDIMessage([newCommand, notes[i].value, newVelocity]);
     }
   }
 }
@@ -77,8 +78,6 @@ function handleQueNotaSalio(message) {
   let data = message.data;
   let command = data[0];
   let velocity = data[2] || 0;
-
-  console.log("finalmente tocamos", data[1]);
 }
 
 // Función para enviar mensajes MIDI
@@ -103,14 +102,8 @@ function getSymmetricMIDINote(midiNote) {
 // o que todas vayan a otro canal y chau
 function mapVariousNotes(midiNote) {
   if (coloredKeys.hasOwnProperty(midiNote)) {
-    return Array.from(coloredKeys[midiNote]).filter((value) => {
-      if (typeof value === "string" && value.startsWith("S")) {
-        return false;
-      } else {
-        return true;
-      }
-    });
+    return coloredKeys[midiNote];
   } else {
-    return [midiNote];
+    return [{ value: midiNote, volume: 100 }];
   }
 }
