@@ -38,8 +38,19 @@
           </div>
           <div class="sub-row">
             <button id="addResetButton" class="button" type="button">
-              Add Reset Key
+              Set Reset Key
             </button>
+            <button id="saveConfigurationButton" class="button" type="button">
+              Save Configuration
+            </button>
+            <div class="dropdown">
+              <button class="button" type="button" id="setConfigButton" data-bs-toggle="dropdown" aria-expanded="false">
+                Set Configuration Key
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="setConfigButton" id="configDropdown">
+                <!-- Dropdown items will be added here by JavaScript -->
+              </ul>
+            </div>
           </div>
         </div>
         <div class="col-4">
@@ -55,6 +66,8 @@
           <div id="mapKeysDisplay"></div>
         </div>
         <div class="col-4">
+          <div id="configurationsDisplayTitle">Configurations:</div>
+          <div id="configurationsDisplay"></div>
         </div>
         <div class="col-4">
           <!-- The Modal -->

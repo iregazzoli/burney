@@ -136,9 +136,55 @@ function updateSpecialKeysDisplay() {
   }
   document.getElementById("specialKeysDisplay").innerHTML = displayText;
 }
+
+function resetColoredKeys() {
+  coloredKeys = {};
+}
+
+function updateConfigurationsDisplay() {
+  let displayText = "";
+  for (let config of pianoConfigurations) {
+    displayText += `<div style="padding-bottom: 10px;">`;
+    displayText += `• Configuration: #${config.id}<br>`;
+    displayText += `• Active: <span style="color: ${
+      config.active ? "green" : "#e34b4b"
+    };"><strong>${config.active ? "On" : "Off"}</strong></span><br>`;
+    displayText += "Keys:<br>";
+    for (let key in config.configuration) {
+      let noteName = myKeyboard.midiToNoteName(parseInt(key));
+      let values = config.configuration[key]
+        .map((obj) => `Value: ${obj.value}`)
+        .join(", ");
+      displayText += `<div style="margin-left: 5px;">◦ Key ${noteName} → ${values}</div>`;
+    }
+    displayText += `</div>`;
+  }
+  document.getElementById("configurationsDisplay").innerHTML = displayText;
+}
+
+function saveConfiguration() {
+  // Find the current maximum id in pianoConfigurations
+  let maxId = pianoConfigurations.reduce(
+    (max, config) => Math.max(max, config.id),
+    0
+  );
+
+  // Create a new configuration with id incremented by 1
+  let newConfig = {
+    id: maxId + 1,
+    active: false,
+    configuration: coloredKeys,
+  };
+
+  // Add the new configuration to pianoConfigurations
+  pianoConfigurations.push(newConfig);
+  updateConfigurationsDisplay();
+}
+
 //coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
 let coloredKeys = {};
 let specialKeys;
+let pianoConfigurations = [];
 let canvas = document.getElementById("canvas");
 let myKeyboard = new Keyboard(canvas, coloredKeys);
 
@@ -177,8 +223,29 @@ document.getElementById("applyChangesButton").addEventListener("click", () => {
   specialKeys = myKeyboard.getSpecialKeys();
 });
 
-function resetColoredKeys() {
-  coloredKeys = {};
-}
+document
+  .getElementById("setConfigButton")
+  .addEventListener("click", function () {
+    let dropdown = document.getElementById("configDropdown");
+    dropdown.innerHTML = ""; // Clear the dropdown
+    for (let i = 0; i < pianoConfigurations.length; i++) {
+      let item = document.createElement("li");
+      let link = document.createElement("a");
+      link.className = "dropdown-item";
+      link.href = "#";
+      link.textContent = "Config " + (i + 1);
+      link.addEventListener("click", function () {
+        // Handle selection of this configuration here
+      });
+      item.appendChild(link);
+      dropdown.appendChild(item);
+    }
+  });
+
+document
+  .getElementById("saveConfigurationButton")
+  .addEventListener("click", () => {
+    saveConfiguration();
+  });
 
 export { coloredKeys, specialKeys, resetColoredKeys };

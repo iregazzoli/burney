@@ -76,7 +76,7 @@ body {
   width: 150px; 
 }
 
-#mapKeysDisplay, #mapKeysDisplayTitle, #specialKeysDisplayTitle, #specialKeysDisplay {
+#mapKeysDisplay, #mapKeysDisplayTitle, #specialKeysDisplayTitle, #specialKeysDisplay, #configurationsDisplayTitle, #configurationsDisplay {
   color: #fff;
   font-size: 24px;
   font-family: Arial, sans-serif;
@@ -107,6 +107,14 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.dropdown-menu {
+  background-color: #9585FF;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #6047FF; 
 }
 
 

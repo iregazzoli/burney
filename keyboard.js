@@ -16,6 +16,7 @@ class Keyboard {
     this.keys = [];
     this.resetKey = false;
     this.addResetKey = false;
+    this.setKey;
 
     this.TOTAL_KEYS = 88;
     this.NUM_WHITE_KEYS = 52;
