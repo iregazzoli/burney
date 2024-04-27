@@ -84,6 +84,11 @@ body {
   width: 195px;
 }
 
+#configurationsDisplay {
+  height: 100%; 
+  overflow-y: auto;
+}
+
 
 #mapKeysDisplay, #mapKeysDisplayTitle, #specialKeysDisplayTitle, #specialKeysDisplay, #configurationsDisplayTitle, #configurationsDisplay {
   color: #fff;
