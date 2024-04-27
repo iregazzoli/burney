@@ -192,25 +192,30 @@ function updateConfigurationsDisplay() {
   document.getElementById("configurationsDisplay").innerHTML = displayText;
 }
 
-function saveConfiguration() {
-  // Find the current maximum id in pianoConfigurations
-  let maxId = pianoConfigurations.reduce(
-    (max, config) => Math.max(max, config.id),
-    0
-  );
+function saveConfiguration(index) {
+  if (index !== undefined && pianoConfigurations[index]) {
+    // Overwrite the existing configuration at the provided index
+    pianoConfigurations[index].configuration = coloredKeys;
+    activateConfig(pianoConfigurations[index].id);
+  } else {
+    // Find the current maximum id in pianoConfigurations
+    let maxId = pianoConfigurations.reduce(
+      (max, config) => Math.max(max, config.id),
+      0
+    );
 
-  // Create a new configuration with id incremented by 1
-  let newConfig = {
-    id: maxId + 1,
-    active: false,
-    configuration: coloredKeys,
-  };
+    // Create a new configuration with id incremented by 1
+    let newConfig = {
+      id: maxId + 1,
+      active: false,
+      configuration: coloredKeys,
+    };
 
-  // Add the new configuration to pianoConfigurations
-  pianoConfigurations.push(newConfig);
-
+    // Add the new configuration to pianoConfigurations
+    pianoConfigurations.push(newConfig);
+    activateConfig(newConfig.id);
+  }
   updateConfigurationsDisplay();
-  activateConfig(newConfig.id);
 }
 
 //coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
@@ -278,8 +283,35 @@ document
 
 document
   .getElementById("saveConfigurationButton")
-  .addEventListener("click", () => {
-    saveConfiguration();
+  .addEventListener("click", function () {
+    let dropdown = document.getElementById("saveConfigDropdown");
+    dropdown.innerHTML = ""; // Clear the dropdown
+
+    // Add "New Config" option
+    let newItem = document.createElement("li");
+    let newLink = document.createElement("a");
+    newLink.className = "dropdown-item";
+    newLink.href = "#";
+    newLink.textContent = "New Config";
+    newLink.addEventListener("click", function () {
+      saveConfiguration();
+    });
+    newItem.appendChild(newLink);
+    dropdown.appendChild(newItem);
+
+    // Add existing configurations
+    for (let i = 0; i < pianoConfigurations.length; i++) {
+      let item = document.createElement("li");
+      let link = document.createElement("a");
+      link.className = "dropdown-item";
+      link.href = "#";
+      link.textContent = "Config " + (i + 1);
+      link.addEventListener("click", function () {
+        saveConfiguration(i);
+      });
+      item.appendChild(link);
+      dropdown.appendChild(item);
+    }
   });
 
 export {

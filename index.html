@@ -40,15 +40,18 @@
             <button id="addResetButton" class="button" type="button">
               Set Reset Key
             </button>
-            <button id="saveConfigurationButton" class="button" type="button">
-              Save Configuration
-            </button>
+            <div class="dropdown">
+              <button class="button" type="button" id="saveConfigurationButton" data-bs-toggle="dropdown" aria-expanded="false">
+                Save Configuration
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="saveConfigurationButton" id="saveConfigDropdown">
+              </ul>
+            </div>
             <div class="dropdown">
               <button class="button" type="button" id="setConfigButton" data-bs-toggle="dropdown" aria-expanded="false">
                 Set Configuration Key
               </button>
               <ul class="dropdown-menu" aria-labelledby="setConfigButton" id="configDropdown">
-                <!-- Dropdown items will be added here by JavaScript -->
               </ul>
             </div>
           </div>
