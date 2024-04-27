@@ -265,12 +265,13 @@ class Keyboard {
       let associatedKeyObjects = this.coloredKeys[key];
       for (let associatedKeyObject of associatedKeyObjects) {
         silentKey = false;
+        let originalValue = associatedKeyObject.value;
         if (/^S\d+$/.test(associatedKeyObject.value)) {
           silentKey = true;
-          associatedKeyObject.value = associatedKeyObject.value.substring(1);
+          originalValue = associatedKeyObject.value.substring(1);
         }
         let associatedKeyInfo = this.AbsoluteToKeyInfo(
-          associatedKeyObject.value - this.MIDI_DISPLACEMENT
+          originalValue - this.MIDI_DISPLACEMENT
         );
         if (associatedKeyInfo.isBlack) {
           test.push({
@@ -438,16 +439,16 @@ class Keyboard {
                 key.index === this.firstKeyIndex &&
                 keyObject.value === key.index
               ) {
-                // The key we press was the original first key we pressed, so it need special treatment.
-                //TODO if we want Snotes remember to change this to instead of deleting the vlaue change it to SNote
-                this.coloredKeys[this.firstKeyIndex] = this.coloredKeys[
-                  this.firstKeyIndex
-                ].filter((obj) => obj.value !== key.index);
+                // We change value to silent key so { "60": [ { "value": "60", "volume": 100 } ] } to { "60": [ { "value": "S60", "volume": 100 } ] }
+                keyObject.value = sKeyIndex;
               } else if (
                 key.index === this.firstKeyIndex &&
                 keyObject.value === sKeyIndex
               ) {
-                keyObject.value = key.index;
+                //Key was already silent so we remove it so from { "60": [ { "value": "S60", "volume": 100 } ] } to { "60": [] }
+                this.coloredKeys[this.firstKeyIndex] = this.coloredKeys[
+                  this.firstKeyIndex
+                ].filter((obj) => obj.value !== `S${this.firstKeyIndex}`);
 
                 let keyInfo = this.AbsoluteToKeyInfo(
                   parseInt(key.index) - this.MIDI_DISPLACEMENT

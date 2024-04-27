@@ -104,13 +104,17 @@ function getSymmetricMIDINote(midiNote) {
 //TODO hacewr que notas mas alla de la original las toque en otro canal
 // o que todas vayan a otro canal y chau
 function mapVariousNotes(midiNote) {
-  if (specialKeys.hasOwnProperty(midiNote)) {
+  if (specialKeys && specialKeys.hasOwnProperty(midiNote)) {
     if (specialKeys[midiNote] == "reset") {
       resetColoredKeys();
     }
   }
-  if (coloredKeys.hasOwnProperty(midiNote)) {
-    return coloredKeys[midiNote];
+  if (coloredKeys && coloredKeys.hasOwnProperty(midiNote)) {
+    // Filter out the object with value equal to S${midiNote}
+    let filteredArray = coloredKeys[midiNote].filter(
+      (obj) => obj.value !== `S${midiNote}`
+    );
+    return filteredArray;
   } else {
     return [{ value: midiNote, volume: 100 }];
   }
