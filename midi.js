@@ -63,13 +63,16 @@ function handleMIDIMessage(message) {
 
     let commandType;
     let newCommand;
+    let channel = 1;
     for (let i = 0; i < notes.length; i++) {
       commandType = command & 0xf0;
-      newCommand = commandType | 0x01;
+      newCommand = commandType | channel;
       // Calculate the new velocity
       let newVelocity = Math.round(velocity * (notes[i].volume / 100));
       // Set the channel to 1 (last 4 bits)
       sendMIDIMessage([newCommand, notes[i].value, newVelocity]);
+      // Increment the channel, resetting to 1 if it reaches 16
+      channel = (channel % 15) + 1;
     }
   }
 }
