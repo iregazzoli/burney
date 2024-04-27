@@ -85,6 +85,10 @@ class Keyboard {
     return this.coloredKeys;
   }
 
+  setColoredKeys(newColoredKeys) {
+    this.coloredKeys = newColoredKeys;
+  }
+
   mapResetKey() {
     this.addResetKey = !this.addResetKey;
     document.getElementById("addResetButton").classList.remove("active");

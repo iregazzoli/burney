@@ -153,11 +153,17 @@ function activateConfig(id) {
 
   // If the selected configuration is now active, deactivate all other configurations
   if (pianoConfigurations[index].active) {
+    coloredKeys = pianoConfigurations[index].configuration;
+    myKeyboard.setColoredKeys(pianoConfigurations[index].configuration);
     for (let i = 0; i < pianoConfigurations.length; i++) {
       if (i !== index) {
         pianoConfigurations[i].active = false;
       }
     }
+  } else {
+    // If the selected configuration is now inactive, reset coloredKeys
+    coloredKeys = {};
+    myKeyboard.setColoredKeys({});
   }
 
   // Update the display to reflect the changes
@@ -177,7 +183,7 @@ function updateConfigurationsDisplay() {
     for (let key in config.configuration) {
       let noteName = myKeyboard.midiToNoteName(parseInt(key));
       let values = config.configuration[key]
-        .map((obj) => `Value: ${obj.value}`)
+        .map((obj) => myKeyboard.midiToNoteName(obj.value))
         .join(", ");
       displayText += `<div style="margin-left: 5px;">◦ Key ${noteName} → ${values}</div>`;
     }
@@ -202,7 +208,9 @@ function saveConfiguration() {
 
   // Add the new configuration to pianoConfigurations
   pianoConfigurations.push(newConfig);
+
   updateConfigurationsDisplay();
+  activateConfig(newConfig.id);
 }
 
 //coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
@@ -274,4 +282,10 @@ document
     saveConfiguration();
   });
 
-export { coloredKeys, specialKeys, resetColoredKeys };
+export {
+  coloredKeys,
+  specialKeys,
+  resetColoredKeys,
+  pianoConfigurations,
+  activateConfig,
+};

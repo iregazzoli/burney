@@ -1,4 +1,10 @@
-import { coloredKeys, specialKeys, resetColoredKeys } from "./main.js";
+import {
+  coloredKeys,
+  specialKeys,
+  resetColoredKeys,
+  pianoConfigurations,
+  activateConfig,
+} from "./main.js";
 // Variables para las salidas MIDI
 let midiOut;
 // Variable to keep track of whether the MIDI input should be processing messages
@@ -59,7 +65,7 @@ function handleMIDIMessage(message) {
   let velocity = data[2] || 0;
 
   if (command === 0x90 || command === 0x80) {
-    let notes = mapVariousNotes(note);
+    let notes = mapVariousNotes(note, velocity);
 
     let commandType;
     let newCommand;
@@ -103,10 +109,14 @@ function getSymmetricMIDINote(midiNote) {
 
 //TODO hacewr que notas mas alla de la original las toque en otro canal
 // o que todas vayan a otro canal y chau
-function mapVariousNotes(midiNote) {
+function mapVariousNotes(midiNote, velocity) {
   if (specialKeys && specialKeys.hasOwnProperty(midiNote)) {
-    if (specialKeys[midiNote] == "reset") {
+    if (specialKeys[midiNote] === "reset") {
       resetColoredKeys();
+    } else if (/^Config \d+$/.test(specialKeys[midiNote]) && velocity !== 0) {
+      console.log("called twice");
+      let configNumber = specialKeys[midiNote].match(/\d+/)[0];
+      activateConfig(parseInt(configNumber));
     }
   }
   if (coloredKeys && coloredKeys.hasOwnProperty(midiNote)) {
