@@ -7,6 +7,7 @@ import {
 } from "./main.js";
 // Variables para las salidas MIDI
 let midiOut;
+let notesOn = {};
 // Variable to keep track of whether the MIDI input should be processing messages
 let shouldProcessMIDIMessages = true;
 const controlChange = 0xb0; // Status byte para Control Change en canal MIDI
@@ -61,24 +62,30 @@ function handleMIDIMessage(message) {
   }
   let data = message.data;
   let command = data[0];
-  let note = data[1];
+  let originalNote = data[1];
   let velocity = data[2] || 0;
 
   if (command === 0x90 || command === 0x80) {
-    let notes = mapVariousNotes(note, velocity);
+    let notes = mapVariousNotes(originalNote, velocity);
 
     let commandType;
     let newCommand;
-    let channel = 1;
-    for (let i = 0; i < notes.length; i++) {
+    let channel;
+    for (let note of notes) {
       commandType = command & 0xf0;
+      // If the note is already on, send the message on channel 1, otherwise send it on channel 0
+      channel = notesOn[note.value] === "on" ? 1 : 0;
       newCommand = commandType | channel;
       // Calculate the new velocity
-      let newVelocity = Math.round(velocity * (notes[i].volume / 100));
+      let newVelocity = Math.round(velocity * (note.volume / 100));
+      // console.log("command: ", newCommand);
+      // console.log("note: ", note.value);
+      // console.log("velocity: ", newVelocity);
       // Set the channel to 1 (last 4 bits)
-      sendMIDIMessage([newCommand, notes[i].value, newVelocity]);
-      // Increment the channel, resetting to 1 if it reaches 16
-      channel = (channel % 15) + 1;
+      sendMIDIMessage([newCommand, note.value, newVelocity]);
+
+      // Update the notesOn object after sending the MIDI message
+      notesOn[note.value] = command === 0x90 && velocity !== 0 ? "on" : "off";
     }
   }
 }
@@ -114,7 +121,6 @@ function mapVariousNotes(midiNote, velocity) {
     if (specialKeys[midiNote] === "reset") {
       resetColoredKeys();
     } else if (/^Config \d+$/.test(specialKeys[midiNote]) && velocity !== 0) {
-      console.log("called twice");
       let configNumber = specialKeys[midiNote].match(/\d+/)[0];
       activateConfig(parseInt(configNumber));
     }
