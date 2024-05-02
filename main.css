@@ -40,6 +40,7 @@ body {
   user-select: none;
   /* background-color: #606CE4; */
   background-color: #989FEB;
+  overflow: hidden;
 }
 
 .button {
@@ -161,7 +162,6 @@ body {
   top: 40%;
   left: 80%;
   transform: translate(-50%, -50%);
-  z-index: 1050; /* This is to ensure the modal appears above other elements */
 }
 
 .modal-dialog {
