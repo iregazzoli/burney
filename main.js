@@ -42,7 +42,6 @@ fetch("configList.json")
             for (let key in pianoConfigurations) {
               pianoConfigurations[key].active = false;
             }
-            console.log(pianoConfigurations);
             // Update the configurations display
             updateConfigurationsDisplay();
           });
@@ -287,11 +286,26 @@ function deleteConfiguration(index) {
     for (let i = index; i < pianoConfigurations.length; i++) {
       pianoConfigurations[i].id = i + 1;
     }
+
+    // Update the key mappings
+    for (let key in myKeyboard.specialKeys) {
+      if (myKeyboard.specialKeys[key] === "Config " + (index + 1)) {
+        // Delete the key mapping for the deleted configuration
+        delete myKeyboard.specialKeys[key];
+      } else if (
+        myKeyboard.specialKeys[key].startsWith("Config ") &&
+        parseInt(myKeyboard.specialKeys[key].split(" ")[1]) > index + 1
+      ) {
+        // Update the key mapping for the configurations that had their ID updated
+        myKeyboard.specialKeys[key] =
+          "Config " + (parseInt(myKeyboard.specialKeys[key].split(" ")[1]) - 1);
+      }
+    }
   }
 
+  updateSpecialKeysDisplay();
   updateConfigurationsDisplay();
 }
-
 //coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
 let coloredKeys = {};
 let specialKeys;
