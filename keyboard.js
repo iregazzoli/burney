@@ -159,7 +159,7 @@ class Keyboard {
       if (mappedKey) C2 = "#6047FF";
       else if (silentKey) C2 = "#ffff2b";
       else C2 = "#9585FF";
-    }
+    } else if (!mappedKey && WhiteKeyIndex === 23) C2 = "#eacffa";
 
     this.DrawRectWithBorder(
       this.X_BORDER + WhiteKeyIndex * this.WHITE_KEY_WIDTH,
