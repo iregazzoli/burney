@@ -88,6 +88,10 @@ body {
   height: 100%; 
   overflow-y: auto;
 }
+#specialKeysDisplay {
+  height: 100%; 
+  overflow-y: auto;
+}
 
 
 #mapKeysDisplay, #mapKeysDisplayTitle, #specialKeysDisplayTitle, #specialKeysDisplay, #configurationsDisplayTitle, #configurationsDisplay {
