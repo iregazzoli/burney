@@ -52,6 +52,7 @@
               <ul class="dropdown-menu" aria-labelledby="deleteConfigButton" id="deleteConfigDropdown">
               </ul>
             </div>
+
             <div class="dropdown">
               <button class="button" type="button" id="setConfigButton" data-bs-toggle="dropdown" aria-expanded="false">
                 Set Configuration Key
@@ -62,7 +63,21 @@
           </div>
         </div>
         <div class="col-4">
-        </div> 
+          <div class="row">
+            <button id="exportConfigButton" class="button" type="button">
+              Export Configurations
+            </button>
+          </div>
+          <div class="row">
+            <div class="dropdown">
+              <button class="button" type="button" id="importConfigButton" data-bs-toggle="dropdown" aria-expanded="false">
+                Import Configurations
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="importConfigButton" id="importConfigDropdown">     
+              </ul>
+            </div>
+          </div>
+        </div>
         <div class="col-4">
           <div id="specialKeysDisplayTitle">Special Keys:</div>
           <div id="specialKeysDisplay" style="height: 110px; overflow-y: auto;"></div>

@@ -10,6 +10,46 @@ window.onload = function () {
   };
 };
 
+// Fetch the list of configuration files
+fetch("configList.json")
+  .then((response) => response.json())
+  .then((data) => {
+    // Get the dropdown menu
+    let dropdownMenu = document.getElementById("importConfigDropdown");
+
+    // Clear the dropdown menu
+    dropdownMenu.innerHTML = "";
+
+    // Add a new list item for each configuration file
+    data.configs.forEach((config) => {
+      let listItem = document.createElement("li");
+      let link = document.createElement("a");
+      link.className = "dropdown-item";
+      link.href = "#";
+      link.textContent = config;
+      listItem.appendChild(link);
+      dropdownMenu.appendChild(listItem);
+
+      // Add event listener to the link
+      // Add event listener to the link
+      link.addEventListener("click", function () {
+        // Fetch the configuration file
+        fetch("saved_configurations/" + config)
+          .then((response) => response.json())
+          .then((data) => {
+            // Update the pianoConfigurations object
+            pianoConfigurations = data;
+            for (let key in pianoConfigurations) {
+              pianoConfigurations[key].active = false;
+            }
+            console.log(pianoConfigurations);
+            // Update the configurations display
+            updateConfigurationsDisplay();
+          });
+      });
+    });
+  });
+
 function noteNameToMidi(noteName) {
   if (!noteName) {
     return null;
@@ -172,8 +212,9 @@ function activateConfig(id) {
 
 function updateConfigurationsDisplay() {
   let displayText = "";
+  let config;
   for (let i = 0; i < pianoConfigurations.length; i++) {
-    let config = pianoConfigurations[i];
+    config = pianoConfigurations[i];
     displayText += `<div style="padding-bottom: 10px;">`;
     displayText += `• Configuration: #${config.id}<br>`;
     displayText += `• Active: <span style="color: ${
@@ -196,7 +237,6 @@ function saveConfiguration(index) {
   if (index !== undefined && pianoConfigurations[index]) {
     // Overwrite the existing configuration at the provided index
     pianoConfigurations[index].configuration = coloredKeys;
-    activateConfig(pianoConfigurations[index].id);
   } else {
     // Find the current maximum id in pianoConfigurations
     let maxId = pianoConfigurations.reduce(
@@ -213,10 +253,30 @@ function saveConfiguration(index) {
 
     // Add the new configuration to pianoConfigurations
     pianoConfigurations.push(newConfig);
-    activateConfig(newConfig.id);
   }
   updateConfigurationsDisplay();
 }
+
+function exportConfigurations() {
+  // Convert the pianoConfigurations object to a JSON string
+  let dataStr = JSON.stringify(pianoConfigurations);
+
+  // Create a data URI
+  let dataUri =
+    "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+  // Create a new anchor element
+  let exportFileDefaultName = "configurations.json";
+  let linkElement = document.createElement("a");
+  linkElement.setAttribute("href", dataUri);
+  linkElement.setAttribute("download", exportFileDefaultName);
+  linkElement.click();
+}
+
+// Attach the function to your button
+document
+  .getElementById("exportConfigButton")
+  .addEventListener("click", exportConfigurations);
 
 function deleteConfiguration(index) {
   if (index !== undefined && pianoConfigurations[index]) {
