@@ -7,7 +7,7 @@ import {
 } from "./main.js";
 // Variables para las salidas MIDI
 let midiOut;
-let notesOn = {};
+let notesOn = [];
 // Variable to keep track of whether the MIDI input should be processing messages
 let shouldProcessMIDIMessages = true;
 const controlChange = 0xb0; // Status byte para Control Change en canal MIDI
@@ -74,19 +74,27 @@ function handleMIDIMessage(message) {
     for (let note of notes) {
       commandType = command & 0xf0;
       // If the note is already on, send the message on channel 1, otherwise send it on channel 0
-      channel = notesOn[note.value] === "on" ? 1 : 0;
+      channel = notesOn.find((n) => n.value === note.value) ? 1 : 0;
       newCommand = commandType | channel;
       // Calculate the new velocity
       let newVelocity = Math.round(velocity * (note.volume / 100));
-      // console.log("command: ", newCommand);
-      // console.log("note: ", note.value);
-      // console.log("velocity: ", newVelocity);
       // Set the channel to 1 (last 4 bits)
-      sendMIDIMessage([newCommand, note.value, newVelocity]);
 
-      // Update the notesOn object after sending the MIDI message
-      notesOn[note.value] = command === 0x90 && velocity !== 0 ? "on" : "off";
+      // Update the notesOn array after sending the MIDI message
+      if (velocity !== 0) {
+        notesOn.push({
+          value: note.value,
+          volume: newVelocity,
+          channel: newCommand,
+        });
+      } else {
+        notesOn = notesOn.filter((n) => n.value !== note.value);
+        sendMIDIMessage([newCommand, note.value, 0]);
+      }
     }
+    notesOn.forEach((note) => {
+      sendMIDIMessage([note.channel, note.value, note.volume]);
+    });
   }
 }
 
