@@ -8,6 +8,8 @@ import {
 // Variables para las salidas MIDI
 let midiOut;
 let notesOn = [];
+let pedalIsDown = false;
+let notesSustained = [];
 // Variable to keep track of whether the MIDI input should be processing messages
 let shouldProcessMIDIMessages = true;
 const controlChange = 0xb0; // Status byte para Control Change en canal MIDI
@@ -55,6 +57,20 @@ function onMIDIFailure() {
   console.log("Could not access MIDI devices.");
 }
 
+function playNotes(stopNotes) {
+  console.log("notesON", notesOn);
+  console.log("sustatined notes", notesSustained);
+  if (stopNotes) {
+    notesOn.forEach((note) => {
+      sendMIDIMessage([note.channel, note.value, 0]);
+    });
+  } else {
+    notesOn.forEach((note) => {
+      sendMIDIMessage([note.channel, note.value, note.volume]);
+    });
+  }
+}
+
 function handleMIDIMessage(message) {
   // If shouldProcessMIDIMessages is false, return immediately without processing the message
   if (!shouldProcessMIDIMessages) {
@@ -64,6 +80,17 @@ function handleMIDIMessage(message) {
   let command = data[0];
   let originalNote = data[1];
   let velocity = data[2] || 0;
+
+  if (command === 0xb0 && originalNote === 64) {
+    pedalIsDown = velocity > 63;
+    if (!pedalIsDown) {
+      // Pedal was released, stop the sustained notes
+      notesSustained.forEach((note) => {
+        sendMIDIMessage([note.channel, note.value, 0]);
+      });
+      notesSustained = [];
+    }
+  }
 
   if (command === 0x90 || command === 0x80) {
     let notes = mapVariousNotes(originalNote, velocity);
@@ -87,14 +114,27 @@ function handleMIDIMessage(message) {
           volume: newVelocity,
           channel: newCommand,
         });
-      } else {
-        notesOn = notesOn.filter((n) => n.value !== note.value);
-        sendMIDIMessage([newCommand, note.value, 0]);
+      } else if (velocity === 0) {
+        if (pedalIsDown) {
+          // Note was released while pedal is down, add it to notesSustained
+          notesSustained.push({
+            value: note.value,
+            volume: newVelocity,
+            channel: newCommand,
+          });
+        } else {
+          // Remove all instances of the note from notesOn
+          notesOn = notesOn.filter((n) => n.value !== note.value);
+          // Send a note off message for each instance of the note
+          notesOn.forEach((n) => {
+            if (n.value === note.value) {
+              sendMIDIMessage([newCommand, note.value, 0]);
+            }
+          });
+        }
       }
     }
-    notesOn.forEach((note) => {
-      sendMIDIMessage([note.channel, note.value, note.volume]);
-    });
+    playNotes(false);
   }
 }
 
