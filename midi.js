@@ -142,8 +142,6 @@ function handleMIDIMessage(message) {
         }
       }
     }
-    console.log("NotesOn: ", notesOn);
-    console.log("notesSustained: ", notesSustained);
     playNotes(false);
   }
 }

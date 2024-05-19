@@ -31,19 +31,21 @@ fetch("configList.json")
       dropdownMenu.appendChild(listItem);
 
       // Add event listener to the link
-      // Add event listener to the link
       link.addEventListener("click", function () {
         // Fetch the configuration file
         fetch("saved_configurations/" + config)
           .then((response) => response.json())
           .then((data) => {
-            // Update the pianoConfigurations object
-            pianoConfigurations = data;
+            // Update the pianoConfigurations and specialKeys objects
+            pianoConfigurations = data.pianoConfigurations;
+            // Update the specialKeys of the Keyboard instance
+            myKeyboard.setSpecialKeys(data.specialKeys);
             for (let key in pianoConfigurations) {
               pianoConfigurations[key].active = false;
             }
-            // Update the configurations display
+            // Update the configurations and special keys display
             updateConfigurationsDisplay();
+            updateSpecialKeysDisplay();
           });
       });
     });
@@ -257,8 +259,14 @@ function saveConfiguration(index) {
 }
 
 function exportConfigurations() {
-  // Convert the pianoConfigurations object to a JSON string
-  let dataStr = JSON.stringify(pianoConfigurations);
+  // Create a new object that contains both pianoConfigurations and specialKeys
+  let exportObject = {
+    pianoConfigurations: pianoConfigurations,
+    specialKeys: specialKeys,
+  };
+
+  // Convert the exportObject object to a JSON string
+  let dataStr = JSON.stringify(exportObject);
 
   // Create a data URI
   let dataUri =

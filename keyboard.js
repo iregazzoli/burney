@@ -105,6 +105,10 @@ class Keyboard {
     return this.specialKeys;
   }
 
+  setSpecialKeys(specialKeys) {
+    this.specialKeys = specialKeys;
+  }
+
   //Private
 
   DrawRectWithBorder(X, Y, Width, Height, Color1, Color2) {
