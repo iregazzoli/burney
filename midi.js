@@ -58,12 +58,16 @@ function onMIDIFailure() {
 }
 
 function playNotes(stopNotes) {
-  console.log("notesON", notesOn);
-  console.log("sustatined notes", notesSustained);
   if (stopNotes) {
     notesOn.forEach((note) => {
       sendMIDIMessage([note.channel, note.value, 0]);
     });
+    // Stop all notes in notesSustained
+    notesSustained.forEach((note) => {
+      sendMIDIMessage([note.channel, note.value, 0]);
+    });
+    // Clear notesSustained
+    notesSustained = [];
   } else {
     notesOn.forEach((note) => {
       sendMIDIMessage([note.channel, note.value, note.volume]);
@@ -105,16 +109,29 @@ function handleMIDIMessage(message) {
       newCommand = commandType | channel;
       // Calculate the new velocity
       let newVelocity = Math.round(velocity * (note.volume / 100));
-      // Set the channel to 1 (last 4 bits)
 
       // Update the notesOn array after sending the MIDI message
       if (velocity !== 0) {
+        // If the note is in notesSustained, remove it
+        notesSustained = notesSustained.filter((n) => n.value !== note.value);
         notesOn.push({
           value: note.value,
           volume: newVelocity,
           channel: newCommand,
         });
       } else if (velocity === 0) {
+        // Send a note off message for each instance of the note only if the pedal is not down
+        if (!pedalIsDown) {
+          notesOn.forEach((n) => {
+            if (n.value === note.value) {
+              sendMIDIMessage([newCommand, note.value, 0]);
+            }
+          });
+        }
+        // Remove all instances of the note from notesOn
+        notesOn = notesOn.filter((n) => n.value !== note.value);
+        // If the note is in notesSustained, remove it
+        notesSustained = notesSustained.filter((n) => n.value !== note.value);
         // If pedal is down, add the note to notesSustained
         if (pedalIsDown) {
           notesSustained.push({
@@ -122,21 +139,15 @@ function handleMIDIMessage(message) {
             volume: newVelocity,
             channel: newCommand,
           });
-        } else {
-          // Send a note off message for each instance of the note
-          notesOn.forEach((n) => {
-            if (n.value === note.value) {
-              sendMIDIMessage([newCommand, note.value, 0]);
-            }
-          });
-          // Remove all instances of the note from notesOn
-          notesOn = notesOn.filter((n) => n.value !== note.value);
         }
       }
     }
+    console.log("NotesOn: ", notesOn);
+    console.log("notesSustained: ", notesSustained);
     playNotes(false);
   }
 }
+
 function handleQueNotaSalio(message) {
   let data = message.data;
   let command = data[0];
