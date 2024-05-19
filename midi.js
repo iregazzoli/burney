@@ -115,29 +115,28 @@ function handleMIDIMessage(message) {
           channel: newCommand,
         });
       } else if (velocity === 0) {
+        // If pedal is down, add the note to notesSustained
         if (pedalIsDown) {
-          // Note was released while pedal is down, add it to notesSustained
           notesSustained.push({
             value: note.value,
             volume: newVelocity,
             channel: newCommand,
           });
         } else {
-          // Remove all instances of the note from notesOn
-          notesOn = notesOn.filter((n) => n.value !== note.value);
           // Send a note off message for each instance of the note
           notesOn.forEach((n) => {
             if (n.value === note.value) {
               sendMIDIMessage([newCommand, note.value, 0]);
             }
           });
+          // Remove all instances of the note from notesOn
+          notesOn = notesOn.filter((n) => n.value !== note.value);
         }
       }
     }
     playNotes(false);
   }
 }
-
 function handleQueNotaSalio(message) {
   let data = message.data;
   let command = data[0];
