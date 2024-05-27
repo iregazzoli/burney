@@ -91,7 +91,8 @@ class Keyboard {
 
   mapResetKey() {
     this.addResetKey = !this.addResetKey;
-    document.getElementById("setResetButton").classList.remove("active");
+    if (!this.addResetKey)
+      document.getElementById("setResetButton").classList.remove("active");
   }
 
   mapConfigKey(selectedConfig) {
