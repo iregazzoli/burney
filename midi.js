@@ -114,11 +114,19 @@ function handleMIDIMessage(message) {
       if (velocity !== 0) {
         // If the note is in notesSustained, remove it
         notesSustained = notesSustained.filter((n) => n.value !== note.value);
+        // If the note is already in notesOn, stop it before playing it again
+        if (notesOn.find((n) => n.value === note.value)) {
+          sendMIDIMessage([newCommand, note.value, 0]);
+        }
+        // Always send a "note off" message before a "note on" message
+        sendMIDIMessage([newCommand, note.value, 0]);
         notesOn.push({
           value: note.value,
           volume: newVelocity,
           channel: newCommand,
         });
+        // Always play the note when it's pressed
+        sendMIDIMessage([newCommand, note.value, newVelocity]);
       } else if (velocity === 0) {
         // Send a note off message for each instance of the note only if the pedal is not down
         if (!pedalIsDown) {
@@ -128,7 +136,7 @@ function handleMIDIMessage(message) {
             }
           });
         }
-        // Remove all instances of the note from notesOn
+        // Remove all instances of the note from notesOn, regardless of the pedal state
         notesOn = notesOn.filter((n) => n.value !== note.value);
         // If the note is in notesSustained, remove it
         notesSustained = notesSustained.filter((n) => n.value !== note.value);
