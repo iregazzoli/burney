@@ -75,6 +75,57 @@ function playNotes(stopNotes) {
   }
 }
 
+function handlePedal(command, originalNote, velocity) {
+  if (command === 0xb0 && originalNote === 64) {
+    pedalIsDown = velocity > 63;
+    if (!pedalIsDown) {
+      // Pedal was released, stop the sustained notes
+      playNotes(true);
+    }
+  }
+}
+
+function handleNoteOn(note, newCommand, newVelocity) {
+  // If the note is in notesSustained, remove it
+  notesSustained = notesSustained.filter((n) => n.value !== note.value);
+  // If the note is already in notesOn, stop it before playing it again
+  if (notesOn.find((n) => n.value === note.value)) {
+    sendMIDIMessage([newCommand, note.value, 0]);
+  }
+  // Always send a "note off" message before a "note on" message
+  sendMIDIMessage([newCommand, note.value, 0]);
+  notesOn.push({
+    value: note.value,
+    volume: newVelocity,
+    channel: newCommand,
+  });
+  // Always play the note when it's pressed
+  sendMIDIMessage([newCommand, note.value, newVelocity]);
+}
+
+function handleNoteOff(note, newCommand, newVelocity) {
+  // Send a note off message for each instance of the note only if the pedal is not down
+  if (!pedalIsDown) {
+    notesOn.forEach((n) => {
+      if (n.value === note.value) {
+        sendMIDIMessage([newCommand, note.value, 0]);
+      }
+    });
+  }
+  // Remove all instances of the note from notesOn, regardless of the pedal state
+  notesOn = notesOn.filter((n) => n.value !== note.value);
+  // If the note is in notesSustained, remove it
+  notesSustained = notesSustained.filter((n) => n.value !== note.value);
+  // If pedal is down, add the note to notesSustained
+  if (pedalIsDown) {
+    notesSustained.push({
+      value: note.value,
+      volume: newVelocity,
+      channel: newCommand,
+    });
+  }
+}
+
 function handleMIDIMessage(message) {
   // If shouldProcessMIDIMessages is false, return immediately without processing the message
   if (!shouldProcessMIDIMessages) {
@@ -85,16 +136,7 @@ function handleMIDIMessage(message) {
   let originalNote = data[1];
   let velocity = data[2] || 0;
 
-  if (command === 0xb0 && originalNote === 64) {
-    pedalIsDown = velocity > 63;
-    if (!pedalIsDown) {
-      // Pedal was released, stop the sustained notes
-      notesSustained.forEach((note) => {
-        sendMIDIMessage([note.channel, note.value, 0]);
-      });
-      notesSustained = [];
-    }
-  }
+  handlePedal(command, originalNote, velocity);
 
   if (command === 0x90 || command === 0x80) {
     let notes = mapVariousNotes(originalNote, velocity);
@@ -112,42 +154,9 @@ function handleMIDIMessage(message) {
 
       // Update the notesOn array after sending the MIDI message
       if (velocity !== 0) {
-        // If the note is in notesSustained, remove it
-        notesSustained = notesSustained.filter((n) => n.value !== note.value);
-        // If the note is already in notesOn, stop it before playing it again
-        if (notesOn.find((n) => n.value === note.value)) {
-          sendMIDIMessage([newCommand, note.value, 0]);
-        }
-        // Always send a "note off" message before a "note on" message
-        sendMIDIMessage([newCommand, note.value, 0]);
-        notesOn.push({
-          value: note.value,
-          volume: newVelocity,
-          channel: newCommand,
-        });
-        // Always play the note when it's pressed
-        sendMIDIMessage([newCommand, note.value, newVelocity]);
+        handleNoteOn(note, newCommand, newVelocity);
       } else if (velocity === 0) {
-        // Send a note off message for each instance of the note only if the pedal is not down
-        if (!pedalIsDown) {
-          notesOn.forEach((n) => {
-            if (n.value === note.value) {
-              sendMIDIMessage([newCommand, note.value, 0]);
-            }
-          });
-        }
-        // Remove all instances of the note from notesOn, regardless of the pedal state
-        notesOn = notesOn.filter((n) => n.value !== note.value);
-        // If the note is in notesSustained, remove it
-        notesSustained = notesSustained.filter((n) => n.value !== note.value);
-        // If pedal is down, add the note to notesSustained
-        if (pedalIsDown) {
-          notesSustained.push({
-            value: note.value,
-            volume: newVelocity,
-            channel: newCommand,
-          });
-        }
+        handleNoteOff(note, newCommand, newVelocity);
       }
     }
     playNotes(false);
