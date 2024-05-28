@@ -1,1 +1,1 @@
-[{"id":1,"active":false,"configuration":{"60":[{"value":24,"volume":100}]}},{"id":2,"active":true,"configuration":{"60":[{"value":96,"volume":100}]}}]
+{"pianoConfigurations":[{"id":1,"active":false,"configuration":{}}],"specialKeys":{"23":"reset","29":"Config 1","33":"reset"}}

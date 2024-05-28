@@ -99,7 +99,7 @@ function saveChanges() {
   }
   const originalKeyMidi = noteNameToMidi(originalKey);
 
-  const originalArray = coloredKeys[originalKeyMidi];
+  const originalArray = tempConfig.configuration[originalKeyMidi];
   if (!originalArray) {
     console.error(`No key found for ${originalKey}`);
     return;
@@ -141,11 +141,11 @@ function saveChanges() {
 document.getElementById("updateKey").addEventListener("click", saveChanges);
 
 function updateDisplay() {
-  coloredKeys = myKeyboard.getColoredKeys();
+  tempConfig.configuration = myKeyboard.getColoredKeys();
   let displayText = "";
-  for (let key in coloredKeys) {
+  for (let key in tempConfig.configuration) {
     let noteName = myKeyboard.midiToNoteName(parseInt(key));
-    let values = coloredKeys[key]
+    let values = tempConfig.configuration[key]
       .map((keyObject) => {
         let displayValue;
         if (
@@ -179,7 +179,7 @@ function updateSpecialKeysDisplay() {
 }
 
 function resetColoredKeys() {
-  coloredKeys = {};
+  tempConfig.configuration = {};
 }
 
 function activateConfig(id) {
@@ -194,7 +194,7 @@ function activateConfig(id) {
 
   // If the selected configuration is now active, deactivate all other configurations
   if (pianoConfigurations[index].active) {
-    coloredKeys = pianoConfigurations[index].configuration;
+    tempConfig.configuration = pianoConfigurations[index].configuration;
     myKeyboard.setColoredKeys(pianoConfigurations[index].configuration);
     for (let i = 0; i < pianoConfigurations.length; i++) {
       if (i !== index) {
@@ -202,8 +202,8 @@ function activateConfig(id) {
       }
     }
   } else {
-    // If the selected configuration is now inactive, reset coloredKeys
-    coloredKeys = {};
+    // If the selected configuration is now inactive, reset tempConfig.configuration
+    tempConfig.configuration = {};
     myKeyboard.setColoredKeys({});
   }
 
@@ -237,7 +237,8 @@ function updateConfigurationsDisplay() {
 function saveConfiguration(index) {
   if (index !== undefined && pianoConfigurations[index]) {
     // Overwrite the existing configuration at the provided index
-    pianoConfigurations[index].configuration = coloredKeys;
+    pianoConfigurations[index].configuration = tempConfig.configuration;
+    pianoConfigurations[index].specialKeys = tempConfig.specialKeys;
   } else {
     // Find the current maximum id in pianoConfigurations
     let maxId = pianoConfigurations.reduce(
@@ -249,12 +250,22 @@ function saveConfiguration(index) {
     let newConfig = {
       id: maxId + 1,
       active: false,
-      configuration: coloredKeys,
+      configuration: tempConfig.configuration,
+      specialKeys: tempConfig.specialKeys,
     };
 
     // Add the new configuration to pianoConfigurations
     pianoConfigurations.push(newConfig);
   }
+
+  // Reset the temporary configuration object
+  tempConfig = {
+    id: null,
+    active: false,
+    configuration: {},
+    specialKeys: {},
+  };
+
   updateConfigurationsDisplay();
 }
 
@@ -314,12 +325,17 @@ function deleteConfiguration(index) {
   updateSpecialKeysDisplay();
   updateConfigurationsDisplay();
 }
-//coloredKeys ex of structure: {60: [{value: 45, volume: 100}, {value: 32, volume: 50}], 87: [{value: 32, volume: 25}]}
-let coloredKeys = {};
+
+let tempConfig = {
+  id: null,
+  active: false,
+  configuration: {},
+  specialKeys: {},
+};
 let specialKeys;
 let pianoConfigurations = [];
 let canvas = document.getElementById("canvas");
-let myKeyboard = new Keyboard(canvas, coloredKeys);
+let myKeyboard = new Keyboard(canvas, tempConfig.configuration);
 let selectedConfig = null;
 
 document.getElementById("resetKeyboardButton").addEventListener("click", () => {
@@ -425,6 +441,8 @@ document
       dropdown.appendChild(item);
     }
   });
+
+let coloredKeys = tempConfig.configuration;
 
 export {
   coloredKeys,
