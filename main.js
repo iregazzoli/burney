@@ -48,6 +48,10 @@ fetch("configList.json")
             // Update the configurations and special keys display
             updateConfigurationsDisplay();
             updateSpecialKeysDisplay();
+
+            //reset current keyboard transformations
+            myKeyboard.setColoredKeys({});
+            updateDisplay();
           });
       });
     });
