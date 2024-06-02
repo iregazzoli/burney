@@ -272,7 +272,8 @@ function saveConfiguration(index) {
       id: maxId + 1,
       active: false,
       configuration: tempConfig.configuration,
-      specialKeys: tempConfig.specialKeys,
+      // if this brings problems in the future we have to use the tempConfig.specialKeys.
+      specialKeys: myKeyboard.getConfigSpecialKeys(),
     };
 
     // Add the new configuration to pianoConfigurations
@@ -348,6 +349,7 @@ let tempConfig = {
   id: null,
   active: false,
   configuration: {},
+  specialKeys: {},
 };
 let pianoConfigurations = [];
 let canvas = document.getElementById("canvas");
@@ -393,6 +395,20 @@ document
   .addEventListener("click", function () {
     let dropdown = document.getElementById("configDropdown");
     dropdown.innerHTML = ""; // Clear the dropdown
+
+    //Add option for current temp config
+    let item = document.createElement("li");
+    let link = document.createElement("a");
+    link.className = "dropdown-item";
+    link.href = "#";
+    link.textContent = "Temp Config";
+    link.addEventListener("click", function () {
+      selectedConfig = "Config " + (pianoConfigurations.length + 1);
+      myKeyboard.mapConfigKey(selectedConfig);
+    });
+    item.appendChild(link);
+    dropdown.appendChild(item);
+
     for (let i = 0; i < pianoConfigurations.length; i++) {
       let item = document.createElement("li");
       let link = document.createElement("a");
@@ -446,6 +462,21 @@ document
   .addEventListener("click", function () {
     let dropdown = document.getElementById("deleteConfigDropdown");
     dropdown.innerHTML = ""; // Clear the dropdown
+
+    // Always have the option to reset current config
+    let item = document.createElement("li");
+    let link = document.createElement("a");
+    link.className = "dropdown-item";
+    link.href = "#";
+    link.textContent = "Temp Config";
+    link.addEventListener("click", () => {
+      resetColoredKeys();
+      myKeyboard.setConfigSpecialKeys({});
+      updateSpecialKeysDisplay();
+      updateConfigurationsDisplay();
+    });
+    item.appendChild(link);
+    dropdown.appendChild(item);
 
     // Add existing configurations
     for (let i = 0; i < pianoConfigurations.length; i++) {
