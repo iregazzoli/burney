@@ -2,7 +2,6 @@ import {
   coloredKeys,
   specialKeys,
   resetColoredKeys,
-  pianoConfigurations,
   activateConfig,
 } from "./main.js";
 // Variables para las salidas MIDI

@@ -36,13 +36,15 @@ fetch("configList.json")
         fetch("saved_configurations/" + config)
           .then((response) => response.json())
           .then((data) => {
-            // Update the pianoConfigurations and specialKeys objects
+            // Update the pianoConfigurations and globalSpecialKeys of the Keyboard instance
             pianoConfigurations = data.pianoConfigurations;
-            // Update the specialKeys of the Keyboard instance
-            myKeyboard.setSpecialKeys(data.specialKeys);
+            myKeyboard.setGlobalSpecialKeys(data.globalSpecialKeys);
+
+            // Deactivate all configurations
             for (let key in pianoConfigurations) {
               pianoConfigurations[key].active = false;
             }
+
             // Update the configurations and special keys display
             updateConfigurationsDisplay();
             updateSpecialKeysDisplay();
@@ -142,6 +144,7 @@ document.getElementById("updateKey").addEventListener("click", saveChanges);
 
 function updateDisplay() {
   tempConfig.configuration = myKeyboard.getColoredKeys();
+  coloredKeys = myKeyboard.getColoredKeys();
   let displayText = "";
   for (let key in tempConfig.configuration) {
     let noteName = myKeyboard.midiToNoteName(parseInt(key));
@@ -167,15 +170,29 @@ function updateDisplay() {
 }
 
 function updateSpecialKeysDisplay() {
-  specialKeys = myKeyboard.getSpecialKeys();
+  let globalSpecialKeys = myKeyboard.getGlobalSpecialKeys();
+  let configSpecialKeys = myKeyboard.getConfigSpecialKeys();
   let displayText = "";
-  for (let key in specialKeys) {
+  for (let key in globalSpecialKeys) {
     let noteName = myKeyboard.midiToNoteName(parseInt(key));
     let value =
-      specialKeys[key].charAt(0).toUpperCase() + specialKeys[key].slice(1);
+      globalSpecialKeys[key].charAt(0).toUpperCase() +
+      globalSpecialKeys[key].slice(1);
+    displayText += `• (G) Key ${noteName} → ${value}<br>`;
+  }
+  for (let key in configSpecialKeys) {
+    let noteName = myKeyboard.midiToNoteName(parseInt(key));
+    let value =
+      configSpecialKeys[key].charAt(0).toUpperCase() +
+      configSpecialKeys[key].slice(1);
     displayText += `• Key ${noteName} → ${value}<br>`;
   }
   document.getElementById("specialKeysDisplay").innerHTML = displayText;
+
+  specialKeys = {
+    ...myKeyboard.getGlobalSpecialKeys(),
+    ...myKeyboard.getConfigSpecialKeys(),
+  };
 }
 
 function resetColoredKeys() {
@@ -194,21 +211,23 @@ function activateConfig(id) {
 
   // If the selected configuration is now active, deactivate all other configurations
   if (pianoConfigurations[index].active) {
-    tempConfig.configuration = pianoConfigurations[index].configuration;
     myKeyboard.setColoredKeys(pianoConfigurations[index].configuration);
+    myKeyboard.setConfigSpecialKeys(pianoConfigurations[index].specialKeys);
     for (let i = 0; i < pianoConfigurations.length; i++) {
       if (i !== index) {
         pianoConfigurations[i].active = false;
       }
     }
   } else {
-    // If the selected configuration is now inactive, reset tempConfig.configuration
-    tempConfig.configuration = {};
-    myKeyboard.setColoredKeys({});
+    // If the selected configuration is now inactive, go back to tempConfig notes
+    myKeyboard.setColoredKeys(tempConfig.configuration);
+    myKeyboard.setConfigSpecialKeys(tempConfig.specialKeys);
   }
 
   // Update the display to reflect the changes
+  updateDisplay();
   updateConfigurationsDisplay();
+  updateSpecialKeysDisplay();
 }
 
 function updateConfigurationsDisplay() {
@@ -235,11 +254,13 @@ function updateConfigurationsDisplay() {
 }
 
 function saveConfiguration(index) {
+  // Existing config
   if (index !== undefined && pianoConfigurations[index]) {
     // Overwrite the existing configuration at the provided index
     pianoConfigurations[index].configuration = tempConfig.configuration;
-    pianoConfigurations[index].specialKeys = tempConfig.specialKeys;
+    pianoConfigurations[index].specialKeys = myKeyboard.getConfigSpecialKeys();
   } else {
+    // New config
     // Find the current maximum id in pianoConfigurations
     let maxId = pianoConfigurations.reduce(
       (max, config) => Math.max(max, config.id),
@@ -265,39 +286,22 @@ function saveConfiguration(index) {
     configuration: {},
     specialKeys: {},
   };
+  myKeyboard.resetColoredKeys();
+  myKeyboard.setConfigSpecialKeys({});
 
+  updateDisplay();
+  updateSpecialKeysDisplay();
   updateConfigurationsDisplay();
 }
 
-function exportConfigurations() {
-  // Create a new object that contains both pianoConfigurations and specialKeys
-  let exportObject = {
-    pianoConfigurations: pianoConfigurations,
-    specialKeys: specialKeys,
-  };
-
-  // Convert the exportObject object to a JSON string
-  let dataStr = JSON.stringify(exportObject);
-
-  // Create a data URI
-  let dataUri =
-    "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
-  // Create a new anchor element
-  let exportFileDefaultName = "configurations.json";
-  let linkElement = document.createElement("a");
-  linkElement.setAttribute("href", dataUri);
-  linkElement.setAttribute("download", exportFileDefaultName);
-  linkElement.click();
-}
-
-// Attach the function to your button
-document
-  .getElementById("exportConfigButton")
-  .addEventListener("click", exportConfigurations);
-
 function deleteConfiguration(index) {
   if (index !== undefined && pianoConfigurations[index]) {
+    // If the configuration to be deleted is active, reset the colored keys and special keys
+    if (pianoConfigurations[index].active) {
+      myKeyboard.setColoredKeys({});
+      myKeyboard.setConfigSpecialKeys({});
+    }
+
     // Delete the configuration at the provided index
     pianoConfigurations.splice(index, 1);
 
@@ -306,18 +310,32 @@ function deleteConfiguration(index) {
       pianoConfigurations[i].id = i + 1;
     }
 
-    // Update the key mappings
-    for (let key in myKeyboard.specialKeys) {
-      if (myKeyboard.specialKeys[key] === "Config " + (index + 1)) {
-        // Delete the key mapping for the deleted configuration
-        delete myKeyboard.specialKeys[key];
+    // Update the global key mappings
+    for (let key in myKeyboard.globalSpecialKeys) {
+      if (myKeyboard.globalSpecialKeys[key] === "Config " + (index + 1)) {
+        delete myKeyboard.globalSpecialKeys[key];
       } else if (
-        myKeyboard.specialKeys[key].startsWith("Config ") &&
-        parseInt(myKeyboard.specialKeys[key].split(" ")[1]) > index + 1
+        myKeyboard.globalSpecialKeys[key].startsWith("Config ") &&
+        parseInt(myKeyboard.globalSpecialKeys[key].split(" ")[1]) > index + 1
       ) {
-        // Update the key mapping for the configurations that had their ID updated
-        myKeyboard.specialKeys[key] =
-          "Config " + (parseInt(myKeyboard.specialKeys[key].split(" ")[1]) - 1);
+        myKeyboard.globalSpecialKeys[key] =
+          "Config " +
+          (parseInt(myKeyboard.globalSpecialKeys[key].split(" ")[1]) - 1);
+      }
+    }
+
+    // Update the special keys in each configuration
+    for (let config of pianoConfigurations) {
+      for (let key in config.specialKeys) {
+        if (config.specialKeys[key] === "Config " + (index + 1)) {
+          delete config.specialKeys[key];
+        } else if (
+          config.specialKeys[key].startsWith("Config ") &&
+          parseInt(config.specialKeys[key].split(" ")[1]) > index + 1
+        ) {
+          config.specialKeys[key] =
+            "Config " + (parseInt(config.specialKeys[key].split(" ")[1]) - 1);
+        }
       }
     }
   }
@@ -330,13 +348,15 @@ let tempConfig = {
   id: null,
   active: false,
   configuration: {},
-  specialKeys: {},
 };
-let specialKeys;
 let pianoConfigurations = [];
 let canvas = document.getElementById("canvas");
 let myKeyboard = new Keyboard(canvas, tempConfig.configuration);
 let selectedConfig = null;
+
+/* 
+  Buttons
+*/
 
 document.getElementById("resetKeyboardButton").addEventListener("click", () => {
   myKeyboard.resetColoredKeys();
@@ -442,12 +462,43 @@ document
     }
   });
 
-let coloredKeys = tempConfig.configuration;
+/* 
+  Exports 
+*/
 
-export {
-  coloredKeys,
-  specialKeys,
-  resetColoredKeys,
-  pianoConfigurations,
-  activateConfig,
+document
+  .getElementById("exportConfigButton")
+  .addEventListener("click", exportConfigurations);
+
+function exportConfigurations() {
+  // Create a new object that contains both pianoConfigurations and specialKeys
+  let exportObject = {
+    pianoConfigurations: pianoConfigurations,
+    globalSpecialKeys: {
+      ...myKeyboard.getGlobalSpecialKeys(),
+    },
+  };
+
+  // Convert the exportObject object to a JSON string
+  let dataStr = JSON.stringify(exportObject);
+
+  // Create a data URI
+  let dataUri =
+    "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+  // Create a new anchor element
+  let exportFileDefaultName = "configurations.json";
+  let linkElement = document.createElement("a");
+  linkElement.setAttribute("href", dataUri);
+  linkElement.setAttribute("download", exportFileDefaultName);
+  linkElement.click();
+}
+
+// let coloredKeys = tempConfig.configuration;
+let coloredKeys = myKeyboard.getColoredKeys();
+let specialKeys = {
+  ...myKeyboard.getGlobalSpecialKeys(),
+  ...myKeyboard.getConfigSpecialKeys(),
 };
+
+export { coloredKeys, specialKeys, resetColoredKeys, activateConfig };

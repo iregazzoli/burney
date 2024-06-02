@@ -9,7 +9,8 @@ class Keyboard {
   constructor(canvas, coloredKeysParam = {}) {
     this.canvas = canvas;
     this.coloredKeys = coloredKeysParam;
-    this.specialKeys = {};
+    this.globalSpecialKeys = {};
+    this.configSpecialKeys = {};
     this.firstKeyIndex = null;
     this.whiteKeys = [];
     this.blackKeys = [];
@@ -71,6 +72,10 @@ class Keyboard {
     this.coloredKeys = {};
   }
 
+  getColoredKeys() {
+    return this.coloredKeys;
+  }
+
   resetColoredKey() {
     this.resetKey = !this.resetKey;
     if (!this.resetKey)
@@ -79,10 +84,6 @@ class Keyboard {
 
   getResetKey() {
     return this.resetKey;
-  }
-
-  getColoredKeys() {
-    return this.coloredKeys;
   }
 
   setColoredKeys(newColoredKeys) {
@@ -102,12 +103,20 @@ class Keyboard {
     document.getElementById("setConfigButton").classList.remove("active");
   }
 
-  getSpecialKeys() {
-    return this.specialKeys;
+  getGlobalSpecialKeys() {
+    return this.globalSpecialKeys;
   }
 
-  setSpecialKeys(specialKeys) {
-    this.specialKeys = specialKeys;
+  setGlobalSpecialKeys(specialKeys) {
+    this.globalSpecialKeys = specialKeys;
+  }
+
+  getConfigSpecialKeys() {
+    return this.configSpecialKeys;
+  }
+
+  setConfigSpecialKeys(specialKeys) {
+    this.configSpecialKeys = specialKeys;
   }
 
   //Private
@@ -428,12 +437,16 @@ class Keyboard {
           }
 
           if (this.addResetKey) {
-            if (this.specialKeys[key.index] === "reset") {
+            let targetKeys = event.shiftKey
+              ? this.globalSpecialKeys
+              : this.configSpecialKeys;
+
+            if (targetKeys[key.index] === "reset") {
               // If the key is already a reset key, remove it
-              delete this.specialKeys[key.index];
+              delete targetKeys[key.index];
             } else {
               // Otherwise, add it as a reset key
-              this.specialKeys[key.index] = "reset";
+              targetKeys[key.index] = "reset";
             }
             this.addResetKey = false;
 
@@ -449,12 +462,16 @@ class Keyboard {
               return;
             }
 
-            if (this.specialKeys[key.index] === this.selectedConfig) {
+            let targetKeys = event.shiftKey
+              ? this.globalSpecialKeys
+              : this.configSpecialKeys;
+
+            if (targetKeys[key.index] === this.selectedConfig) {
               // If the key is already set to this configuration, remove it
-              delete this.specialKeys[key.index];
+              delete targetKeys[key.index];
             } else {
               // Otherwise, set it to this configuration
-              this.specialKeys[key.index] = this.selectedConfig;
+              targetKeys[key.index] = this.selectedConfig;
             }
 
             this.setConfigKey = false;

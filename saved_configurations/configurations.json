@@ -1,1 +1,1 @@
-{"pianoConfigurations":[{"id":1,"active":false,"configuration":{}}],"specialKeys":{"23":"reset","29":"Config 1","33":"reset"}}
+{"pianoConfigurations":[{"id":1,"active":false,"configuration":{"60":[{"value":64,"volume":100},{"value":67,"volume":100}]},"specialKeys":{"21":"reset"}},{"id":2,"active":false,"configuration":{"60":[{"value":64,"volume":100},{"value":67,"volume":100}]},"specialKeys":{"23":"reset"}}],"globalSpecialKeys":{"107":"Config 1","108":"reset"}}
