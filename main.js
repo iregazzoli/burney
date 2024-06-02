@@ -236,7 +236,7 @@ function updateConfigurationsDisplay() {
   for (let i = 0; i < pianoConfigurations.length; i++) {
     config = pianoConfigurations[i];
     displayText += `<div style="padding-bottom: 10px;">`;
-    displayText += `• Configuration: #${config.id}<br>`;
+    displayText += `<div class="clickable" onclick="editConfig(${config.id})">• Configuration: #${config.id}</div>`;
     displayText += `• Active: <span style="color: ${
       config.active ? "green" : "#e34b4b"
     };"><strong>${config.active ? "On" : "Off"}</strong></span><br>`;
@@ -252,6 +252,20 @@ function updateConfigurationsDisplay() {
   }
   document.getElementById("configurationsDisplay").innerHTML = displayText;
 }
+
+window.editConfig = function (id) {
+  console.log("in Edit");
+  let config = pianoConfigurations.find((config) => config.id === id);
+  if (config) {
+    myKeyboard.setColoredKeys(config.configuration);
+    myKeyboard.setConfigSpecialKeys(config.specialKeys);
+  } else {
+    console.log(`No configuration found with id: ${id}`);
+  }
+
+  updateDisplay();
+  updateSpecialKeysDisplay();
+};
 
 function saveConfiguration(index) {
   // Existing config

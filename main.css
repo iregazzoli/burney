@@ -205,3 +205,11 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  text-decoration: underline;
+  color: #6047FF;
+}
