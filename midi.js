@@ -56,41 +56,21 @@ function onMIDIFailure() {
   console.log("Could not access MIDI devices.");
 }
 
-function playNotes(stopNotes) {
-  if (stopNotes) {
-    notesOn.forEach((note) => {
-      sendMIDIMessage([note.channel, note.value, 0]);
-    });
-    // Stop all notes in notesSustained
-    notesSustained.forEach((note) => {
-      sendMIDIMessage([note.channel, note.value, 0]);
-    });
-    // Clear notesSustained
-    notesSustained = [];
-  } else {
-    notesOn.forEach((note) => {
-      sendMIDIMessage([note.channel, note.value, note.volume]);
-    });
-  }
-}
-
 function handlePedal(command, originalNote, velocity) {
   if (command === 0xb0 && originalNote === 64) {
     pedalIsDown = velocity > 63;
     if (!pedalIsDown) {
-      // Pedal was released, stop the sustained notes
-      playNotes(true);
+      // Pedal was released, stop all notes in notesSustained
+      notesSustained.forEach((note) => {
+        sendMIDIMessage([note.channel, note.value, 0]);
+      });
+      // Clear notesSustained
+      notesSustained = [];
     }
   }
 }
 
 function handleNoteOn(note, newCommand, newVelocity) {
-  // If the note is in notesSustained, remove it
-  notesSustained = notesSustained.filter((n) => n.value !== note.value);
-  // If the note is already in notesOn, stop it before playing it again
-  if (notesOn.find((n) => n.value === note.value)) {
-    sendMIDIMessage([newCommand, note.value, 0]);
-  }
   // Always send a "note off" message before a "note on" message
   sendMIDIMessage([newCommand, note.value, 0]);
   notesOn.push({
@@ -103,33 +83,34 @@ function handleNoteOn(note, newCommand, newVelocity) {
 }
 
 function handleNoteOff(note, newCommand, newVelocity) {
-  // Send a note off message for each instance of the note only if the pedal is not down
-  if (!pedalIsDown) {
-    notesOn.forEach((n) => {
-      if (n.value === note.value) {
-        sendMIDIMessage([newCommand, note.value, 0]);
-      }
-    });
-  }
-  // Remove all instances of the note from notesOn, regardless of the pedal state
+  // Remove the note from notesOn
   notesOn = notesOn.filter((n) => n.value !== note.value);
-  // If the note is in notesSustained, remove it
-  notesSustained = notesSustained.filter((n) => n.value !== note.value);
-  // If pedal is down, add the note to notesSustained
-  if (pedalIsDown) {
-    notesSustained.push({
-      value: note.value,
-      volume: newVelocity,
-      channel: newCommand,
-    });
+
+  // Send a note off message if the pedal is not down
+  if (!pedalIsDown) {
+    sendMIDIMessage([newCommand, note.value, 0]);
+  } else {
+    // Check if the note is already in notesSustained to avoid duplicates
+    const isNoteSustained = notesSustained.some((n) => n.value === note.value);
+    if (!isNoteSustained) {
+      // If the pedal is down and the note is not already sustained, add it to notesSustained
+      notesSustained.push({
+        value: note.value,
+        volume: newVelocity,
+        channel: newCommand,
+      });
+    }
+    return;
   }
+
+  // If the pedal is not down, ensure the note is also removed from notesSustained
+  notesSustained = notesSustained.filter((n) => n.value !== note.value);
 }
 
 function handleMIDIMessage(message) {
   // If shouldProcessMIDIMessages is false, return immediately without processing the message
-  if (!shouldProcessMIDIMessages) {
-    return;
-  }
+  if (!shouldProcessMIDIMessages) return;
+
   let data = message.data;
   let command = data[0];
   let originalNote = data[1];
@@ -158,14 +139,7 @@ function handleMIDIMessage(message) {
         handleNoteOff(note, newCommand, newVelocity);
       }
     }
-    playNotes(false);
   }
-}
-
-function handleQueNotaSalio(message) {
-  let data = message.data;
-  let command = data[0];
-  let velocity = data[2] || 0;
 }
 
 // Función para enviar mensajes MIDI
@@ -173,17 +147,6 @@ function sendMIDIMessage(message) {
   if (midiOut) {
     midiOut.send(message);
   }
-}
-
-function getSymmetricMIDINote(midiNote) {
-  // El "centro" de simetría está 2 notas por encima del Do central (C4)
-  const symmetryCenter = 62;
-
-  // Calcular la diferencia con respecto al centro
-  let difference = midiNote - symmetryCenter;
-
-  // Devolver la nota simétrica
-  return symmetryCenter - difference;
 }
 
 //TODO hacewr que notas mas alla de la original las toque en otro canal
