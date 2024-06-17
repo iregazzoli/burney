@@ -102,9 +102,6 @@ function handleNoteOff(note, newCommand, newVelocity) {
     }
     return;
   }
-
-  // If the pedal is not down, ensure the note is also removed from notesSustained
-  notesSustained = notesSustained.filter((n) => n.value !== note.value);
 }
 
 function handleMIDIMessage(message) {
