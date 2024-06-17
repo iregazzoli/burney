@@ -60,9 +60,12 @@ function handlePedal(command, originalNote, velocity) {
   if (command === 0xb0 && originalNote === 64) {
     pedalIsDown = velocity > 63;
     if (!pedalIsDown) {
-      // Pedal was released, stop all notes in notesSustained
+      // Pedal was released, stop all notes in notesSustained that are not currently pressed
       notesSustained.forEach((note) => {
-        sendMIDIMessage([note.channel, note.value, 0]);
+        // Check if the note is not currently pressed
+        if (!notesOn.some((n) => n.value === note.value)) {
+          sendMIDIMessage([note.channel, note.value, 0]);
+        }
       });
       // Clear notesSustained
       notesSustained = [];
@@ -102,6 +105,9 @@ function handleNoteOff(note, newCommand, newVelocity) {
     }
     return;
   }
+
+  // If the pedal is not down, ensure the note is also removed from notesSustained
+  notesSustained = notesSustained.filter((n) => n.value !== note.value);
 }
 
 function handleMIDIMessage(message) {
